@@ -1,0 +1,41 @@
+apply plugin: 'android-library'
+
+repositories {
+    mavenCentral()
+}
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+    }
+    buildTypes {
+        release {
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            res.srcDirs = ['res']
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+
+
+
+    buildToolsVersion '25.0.0'
+}
+
+dependencies {
+
+//    compile fileTree(dir: 'libs', include: ['*.jar'])
+    //compile project(':ResideMenu')
+    compile 'com.nineoldandroids:library:2.4.0'
+}
+
+//apply from: '../maven_push.gradle'

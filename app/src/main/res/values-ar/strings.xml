@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">In_A_Click</string>
+    <string name="title_activity_map_tracking_actvity">Map</string>
+    <string name="ok">OK</string>
+    <string name="title_location_permission">Warning</string>
+    <string name="text_location_permission">This App will request to Access The Location, Do u apply that???</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="latitude_label">Latitude</string>
+    <string name="longitude_label">Longitude</string>
+    <string name="last_update_time_label">Last location update time</string>
+
+    <string name="start_updates">Start updates</string>
+    <string name="stop_updates">Stop updates</string>
+    <string name="location_updated_message">Location updated</string>
+
+
+    <string name="ourServices">خدماتنا</string>
+    <string name="aboutUs">عن الشركه</string>
+    <string name="contactUs">تواصل معنا</string>
+    <string name="google_direction_api">AIzaSyAPvNmlpIwuzinDyox39qIgSmfkAh2Mg54</string>
+</resources>
