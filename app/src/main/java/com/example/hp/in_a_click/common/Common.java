@@ -11,7 +11,7 @@ public class Common {
 
     public static final String baseUrl = "https://maps.googleapis.com";
 
-    public static IGoogleAPI getGooglApi() {
+    public static IGoogleAPI getGoogleApi() {
         return RetrofitClient.getClient(baseUrl).create(IGoogleAPI.class);
     }
 

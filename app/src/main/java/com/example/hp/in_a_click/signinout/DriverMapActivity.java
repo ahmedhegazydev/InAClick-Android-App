@@ -6,24 +6,22 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.animation.ValueAnimatorCompat;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -36,11 +34,10 @@ import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
+import com.example.hp.in_a_click.R;
 import com.example.hp.in_a_click.common.Common;
 import com.example.hp.in_a_click.remote.IGoogleAPI;
-import com.example.hp.in_a_click.tests.ListLoginActivity;
 import com.example.hp.in_a_click.tests.ListOnlineHolder;
-import com.example.hp.in_a_click.tests.Tracking;
 import com.example.hp.in_a_click.tests.User;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -49,28 +46,21 @@ import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.example.hp.in_a_click.R;
-import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
@@ -78,22 +68,20 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+//import android.support.v4.animation.ValueAnimatorCompat;
+//import android.support.v4.app.Fragment;
 
 public class DriverMapActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.OnConnectionFailedListener,
@@ -127,7 +115,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     String provider;
     DatabaseReference refLocations = null;
     GoogleMap mMap = null;
-    Marker marker = null;
+    Marker currentMarker = null;
     GeoFire geoFire = null;
     MaterialAnimatedSwitch materialAnimatedSwitch = null;
     DatabaseReference refDrivers = null;
@@ -135,7 +123,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     ///////////////////////////////////For Tracking the destination
     ArrayList<LatLng> latLngs = null;
     EditText etDestination = null;
-    Marker markerDestination = null;
+    Marker currentMarkerDestination = null;
     float v;
     Handler handler = null;
     double lat, lon;
@@ -146,10 +134,11 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     PolylineOptions polylineOptionsBlack, polylineOptionsGray;
     Polyline polylineBlack, polylineGray;
     IGoogleAPI mService = null;
+    Marker carMarker = null;
     private boolean mRequestingLocationUpdates;
     private String mLastUpdateTime;
     private Marker mMarker;
-    /////////////////////Showing popup window above the marker
+    /////////////////////Showing popup window above the currentMarker
     private PopupWindow mPopupWindow;
     private int mWidth;
     private int mHeight;
@@ -157,32 +146,38 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         @Override
         public void run() {
 
-            if (index < latLngs.size() - 1){
-                index ++;
+            if (index < latLngs.size() - 1) {
+                index++;
                 next = index + 1;
 
             }
-            if (index < latLngs.size() - 1){
+            if (index < latLngs.size() - 1) {
                 startPos = latLngs.get(index);
                 endPos = latLngs.get(next);
 
             }
 
 
-
-            ValueAnimator valueAnimator = ValueAnimator.ofFloat(0,1);
+            final ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
             valueAnimator.setDuration(3000);
             valueAnimator.setInterpolator(new LinearInterpolator());
             valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
 
-                    
-
+                    v = valueAnimator.getAnimatedFraction();
+                    lat = v * endPos.latitude + (1 - v) * startPos.latitude;
+                    lon = v * endPos.longitude + (1 - v) * startPos.longitude;
+                    LatLng newPos = new LatLng(lat, lon);
+                    currentMarker.setPosition(newPos);
+                    currentMarker.setAnchor(0.5f, 0.5f);
+                    currentMarker.setRotation(getBearing(startPos, newPos));
+                    mMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder().target(newPos).zoom(15.5f).build()));
 
                 }
             });
-
+            valueAnimator.start();
+            handler.postDelayed(this, 3000);
 
 
         }
@@ -227,6 +222,30 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         return path;
     }
 
+    private float getBearing(LatLng startPos, LatLng newPos) {
+
+        double lat = Math.abs(startPos.latitude - endPos.latitude);
+        double lon = Math.abs(startPos.longitude - endPos.longitude);
+        if (startPos.latitude < endPos.latitude && startPos.latitude < endPos.longitude) {
+            return (float) ((90 - Math.toDegrees(Math.atan(lon / lat))) + 90);
+        } else {
+            if (startPos.latitude >= endPos.latitude && startPos.latitude < endPos.longitude) {
+                return (float) Math.toDegrees(Math.atan(lon / lat));
+            } else {
+                if (startPos.latitude >= endPos.latitude && startPos.latitude >= endPos.longitude) {
+                    return (float) (Math.toDegrees(Math.atan(lon / lat)) + 180);
+                } else {
+                    if (startPos.latitude >= endPos.latitude && startPos.latitude >= endPos.longitude) {
+                        return (float) ((90 - Math.toDegrees(Math.atan(lon / lat))) + 270);
+                    }
+
+                }
+            }
+        }
+
+        return -1;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -247,9 +266,9 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     private void getTheFinalDestination() {
         btnFindDest = findViewById(R.id.btnFindDest);
         btnFindDest.setOnClickListener(this);
-        etDestination = findViewById(R.id.etDestination);
+        etDestination /**/ = findViewById(R.id.etDestination);
         latLngs = new ArrayList<LatLng>();
-        mService = Common.getGooglApi();
+        mService = Common.getGoogleApi();
 
 
     }
@@ -302,11 +321,15 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     Snackbar.make(mapFragment.getView(), "The Driver Is Online Now", Snackbar.LENGTH_SHORT).show();
                 } else {
                     stopLocationUpdates();
-                    marker.remove();
+                    currentMarker.remove();
                     if (mPopupWindow != null) {
                         if (mPopupWindow.isShowing()) {
                             mPopupWindow.dismiss();
                         }
+                    }
+                    mMap.clear();
+                    if (handler != null) {
+                        handler.removeCallbacks(runnable);
                     }
                     Snackbar.make(mapFragment.getView(), "The Driver Is Offline Now", Snackbar.LENGTH_SHORT).show();
                 }
@@ -336,6 +359,27 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
     }
 
+
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+//        switch (requestCode) {
+//            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    //setButtonsEnabledState();
+//                    startLocationUpdates();
+//                } else {
+//                    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+//                        mRequestingLocationUpdates = false;
+//
+//                    } else {
+//                        showRationaleDialog();
+//                    }
+//                }
+//                break;
+//            }
+//        }
+//    }
+
     private void displayLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -354,12 +398,12 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     public void onComplete(String key, DatabaseError error) {
                         //Toast.makeText(DriverMapActivity.this, "onComplete", Toast.LENGTH_SHORT).show();
 //
-                        if (marker != null) {
-                            marker.remove();
-                            //marker.setVisible(false);
+                        if (currentMarker != null) {
+                            currentMarker.remove();
+                            //currentMarker.setVisible(false);
                         }
 
-                        marker = mMap.addMarker(new MarkerOptions()
+                        currentMarker = mMap.addMarker(new MarkerOptions()
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
                                 //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
                                 .title("Online Driver")
@@ -367,9 +411,9 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                                 .position(new LatLng(lat, lon))
                         );
 
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lon), 20.0f));
-
-                        rotateMarker(marker, -360, mMap);
+//                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lon), 20.0f));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lon), 12.0f));
+                        //rotateMarker(currentMarker, -360, mMap);
 
 
                     }
@@ -391,27 +435,6 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
 
     }
-
-
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-//        switch (requestCode) {
-//            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    //setButtonsEnabledState();
-//                    startLocationUpdates();
-//                } else {
-//                    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-//                        mRequestingLocationUpdates = false;
-//
-//                    } else {
-//                        showRationaleDialog();
-//                    }
-//                }
-//                break;
-//            }
-//        }
-//    }
 
     private void showRationaleDialog() {
         new AlertDialog.Builder(this)
@@ -468,11 +491,11 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.setTrafficEnabled(false);
         mMap.setIndoorEnabled(false);
-        mMap.setBuildingsEnabled(false);
+        //mMap.setBuildingsEnabled(false);
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
 
-        // Add a marker in Sydney and move the camera
+        // Add a currentMarker in Sydney and move the camera
 //        LatLng sydney = new LatLng(-34, 151);
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
@@ -548,11 +571,11 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
     }
 
-    private void rotateMarker(final Marker marker, final int i, GoogleMap mMap) {
+    private void rotateMarker(final Marker currentMarker, final int i, GoogleMap mMap) {
 
         final Handler handler = new Handler();
         final long start = SystemClock.uptimeMillis();
-        final float startRotation = marker.getRotation();
+        final float startRotation = currentMarker.getRotation();
         final long duration = 1500;
         final Interpolator interpolator = new LinearInterpolator();
         handler.post(new Runnable() {
@@ -564,7 +587,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                 float rot;
                 t = interpolator.getInterpolation((float) elapsed / duration);
                 rot = t * i + (i - t) * startRotation;
-                marker.setRotation(-rot > 180 ? rot / 2 : rot);
+                currentMarker.setRotation(-rot > 180 ? rot / 2 : rot);
                 if (t < 1.0) {
                     handler.postDelayed(this, 16);
                 }
@@ -590,21 +613,6 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         googleApiClient.disconnect();
 
         super.onStop();
-    }
-
-    protected void stopLocationUpdates() {
-        //Log.i(TAG, "stopLocationUpdates");
-        // The final argument to {@code requestLocationUpdates()} is a LocationListener
-        // (http://developer.android.com/reference/com/google/android/gms/location/LocationListener.html).
-
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                ) {
-            return;
-        }
-
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
     }
 
 
@@ -645,6 +653,21 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 //        });
 //    }
 
+    protected void stopLocationUpdates() {
+        //Log.i(TAG, "stopLocationUpdates");
+        // The final argument to {@code requestLocationUpdates()} is a LocationListener
+        // (http://developer.android.com/reference/com/google/android/gms/location/LocationListener.html).
+
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                ) {
+            return;
+        }
+
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -677,7 +700,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     }
 
     @Override
-    public boolean onMarkerClick(Marker marker) {
+    public boolean onMarkerClick(Marker currentMarker) {
 
         if (mPopupWindow != null) {
             mPopupWindow.dismiss();
@@ -706,30 +729,30 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     }
 
     private void updatePopup() {
-        if (marker != null && mPopupWindow != null) {
-            // marker is visible
-            if (mMap.getProjection().getVisibleRegion().latLngBounds.contains(marker.getPosition())) {
+        if (currentMarker != null && mPopupWindow != null) {
+            // currentMarker is visible
+            if (mMap.getProjection().getVisibleRegion().latLngBounds.contains(currentMarker.getPosition())) {
                 if (!mPopupWindow.isShowing()) {
                     mPopupWindow.showAtLocation(findViewById(R.id.map_for_driver), Gravity.NO_GRAVITY, 0, 0);
                 }
-                Point p = mMap.getProjection().toScreenLocation(marker.getPosition());
+                Point p = mMap.getProjection().toScreenLocation(currentMarker.getPosition());
                 //mPopupWindow.update(p.x - mWidth / 2, p.y - mHeight + 100, -1, -1);
-                //make the popup window above marker
+                //make the popup window above currentMarker
                 mPopupWindow.update(p.x - mWidth / 2, p.y - (mHeight + 10), -1, -1);
-            } else { // marker outside screen
+            } else { // currentMarker outside screen
                 mPopupWindow.dismiss();
             }
         }
     }
 
+    //    Called repeatedly as the camera continues to move after an onCameraMoveStarted call.
+//    This may be called as often as once every frame and should not perform expensive operations.
+//    This is called on the Android UI thread.
+
     @Override
     public void onCameraIdle() {
 
     }
-
-    //    Called repeatedly as the camera continues to move after an onCameraMoveStarted call.
-//    This may be called as often as once every frame and should not perform expensive operations.
-//    This is called on the Android UI thread.
 
     @Override
     public void onCameraMoveCanceled() {
@@ -759,6 +782,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
         dest = etDestination.getText().toString();
         dest = dest.replace(" ", "+");
+        Log.e("Dest20130074", dest);
 
         currentPos = new LatLng(location.getLatitude(), location.getLongitude());
         String requestApi = "https://maps.googleapis.com/maps/api/directions/json?" +
@@ -767,6 +791,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                 "&origin=" + currentPos.latitude + "," + currentPos.longitude +
                 "&destination=" + dest +
                 "&key" + getResources().getString(R.string.google_direction_api);
+        //Log.e("requestApi201300", requestApi);
 
         mService.getPath(requestApi).enqueue(new Callback<String>() {
             @Override
@@ -782,12 +807,17 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
                         latLngs = decode(polyLine);
                     }
+
                     //Adjusting bounds
                     LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                    for (int j = 0; j < latLngs.size(); j++) {
-                        builder.include(latLngs.get(j));
-                    }
+//                    for (int j = 0; j < latLngs.size(); j++) {
+//                        builder.include(latLngs.get(j));
+//                    }
+                    for (LatLng latLng : latLngs)
+                        builder.include(latLng);
+
                     LatLngBounds bounds = builder.build();
+
                     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 2);
                     mMap.animateCamera(cameraUpdate);
 
@@ -836,12 +866,19 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     valueAnimator.start();
 
 
-                    marker = mMap.addMarker(new MarkerOptions().position(currentPos).flat(true).icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
+                    carMarker = mMap.addMarker(new MarkerOptions().
+                            position(currentPos)
+                            .flat(true)
+                            .title("Destination")
+                            .snippet("Home")
+                            //.icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.home3))
+                    );
 
                     handler = new Handler();
                     index = -1;
-                    next= 1;
-                    handler.post(runnable);
+                    next = 1;
+                    handler.postDelayed(runnable, 3000);
 
 
                 } catch (JSONException e) {
