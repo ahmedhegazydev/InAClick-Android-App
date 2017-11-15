@@ -41,7 +41,7 @@ public class Main3Activity extends AppCompatActivity {
 //        mSweetSheet3 = new SweetSheet(rl);
 //        CustomDelegate customDelegate = new CustomDelegate(choose_this,
 //                CustomDelegate.AnimationType.DuangLayoutAnimation);
-//        View view = LayoutInflater.from(this).inflate(R.layout.sweet_layout_custom_view, null, false);
+//        View view = LayoutInflater.from(this).inflate(R.layout_select_role.sweet_layout_custom_view, null, false);
 //        customDelegate.setCustomView(view);
 //        mSweetSheet3.setDelegate(customDelegate);
 //        view.findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
@@ -151,10 +151,10 @@ public class Main3Activity extends AppCompatActivity {
     private void init() {
         setContentView(R.layout.sweet_activity_main);
 
-        rlCars = (RelativeLayout) findViewById(R.id.rlCars);
-        rlMain = (RelativeLayout) findViewById(R.id.rlMain);
-        rlHomes = (RelativeLayout) findViewById(R.id.rlHomes);
-        llBottomContactUs = (LinearLayout) findViewById(R.id.llContactUsBootom);
+        rlCars = findViewById(R.id.rlCars);
+        rlMain = findViewById(R.id.rlMain);
+        rlHomes = findViewById(R.id.rlHomes);
+        llBottomContactUs = findViewById(R.id.llContactUsBootom);
 
 
         sweetSheetCars = createSweetSheet(rlMain,

@@ -41,14 +41,21 @@ import com.example.hp.in_a_click.tests.ListOnlineHolder;
 import com.example.hp.in_a_click.tests.User;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -65,9 +72,11 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -102,6 +111,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     final static int UPDATE_INTERVAL = 5000;
     final static int FATEST_INTERVAL = 3000;
     final static int DISTANCE = 1000;
+    final static int LIMIT = 3;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private static final int REQUEST_CHECK_SETTINGS = 10;
     DatabaseReference onlineRef = null, currentUserRef = null, counterRef = null;
@@ -135,6 +145,13 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     Polyline polylineBlack, polylineGray;
     IGoogleAPI mService = null;
     Marker carMarker = null;
+    PlaceAutocompleteFragment placeAutCompleteFragment = null;
+    //for finding the driver with distance 1 km
+    int radius = 1;
+    boolean isDriverFound = false;
+    String driverId = "";
+    int distance = 1;
+    //////////////////////////////////////////////
     private boolean mRequestingLocationUpdates;
     private String mLastUpdateTime;
     private Marker mMarker;
@@ -169,9 +186,11 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     lat = v * endPos.latitude + (1 - v) * startPos.latitude;
                     lon = v * endPos.longitude + (1 - v) * startPos.longitude;
                     LatLng newPos = new LatLng(lat, lon);
-                    currentMarker.setPosition(newPos);
-                    currentMarker.setAnchor(0.5f, 0.5f);
-                    currentMarker.setRotation(getBearing(startPos, newPos));
+
+                    carMarker.setPosition(newPos);
+                    carMarker.setAnchor(0.5f, 0.5f);
+                    carMarker.setRotation(getBearing(startPos, newPos));
+
                     mMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder().target(newPos).zoom(15.5f).build()));
 
                 }
@@ -222,20 +241,129 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         return path;
     }
 
-    private float getBearing(LatLng startPos, LatLng newPos) {
+    private void findNearestDriver() {
+
+        DatabaseReference drivers = FirebaseDatabase.getInstance().getReference("Drivers");
+        GeoFire geoFireDrivers = new GeoFire(drivers);
+        GeoQuery geoQueryDrivers = geoFireDrivers.queryAtLocation(new GeoLocation(location.getLatitude(), location.getLongitude()), radius);
+        geoQueryDrivers.removeAllListeners();
+        geoQueryDrivers.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, GeoLocation location) {
+
+                //if the driver found
+                if (!isDriverFound) {
+                    isDriverFound = true;
+                    driverId = key;
+
+                }
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+                //if still can't find nearest driver at 1 km
+                //it will increase the distance
+
+                if (!isDriverFound) {
+                    radius++;
+                    findNearestDriver();
+                }
+
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+
+
+            }
+        });
+
+
+    }
+
+
+    private void loadAllAvailableDrivers() {
+
+
+        //load all available drivers in distance 3 km
+        DatabaseReference refAllDrivers = FirebaseDatabase.getInstance().getReference("Drivers");
+        GeoFire geoFire = new GeoFire(refAllDrivers);
+        GeoQuery geoQueryAllDriversWithDist = geoFire.queryAtLocation(new GeoLocation(location.getLatitude(), location.getLongitude()), distance);
+        geoQueryAllDriversWithDist.removeAllListeners();
+        geoQueryAllDriversWithDist.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, GeoLocation location) {
+
+                FirebaseDatabase.getInstance().getReference("InAclickUsers")
+                        .child(key)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+                if (distance <= LIMIT) {
+                    distance++;
+                    loadAllAvailableDrivers();
+                }
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+
+            }
+        });
+
+
+    }
+
+
+    private float getBearing(LatLng startPos, LatLng endPos) {
+
 
         double lat = Math.abs(startPos.latitude - endPos.latitude);
         double lon = Math.abs(startPos.longitude - endPos.longitude);
-        if (startPos.latitude < endPos.latitude && startPos.latitude < endPos.longitude) {
-            return (float) ((90 - Math.toDegrees(Math.atan(lon / lat))) + 90);
+
+        if (startPos.latitude < endPos.latitude && startPos.longitude < endPos.longitude) {
+            return (float) Math.toDegrees(Math.atan(lon / lat));
         } else {
             if (startPos.latitude >= endPos.latitude && startPos.latitude < endPos.longitude) {
-                return (float) Math.toDegrees(Math.atan(lon / lat));
+                return (float) ((90 - Math.toDegrees(Math.atan(lon / lat))) + 90);
             } else {
                 if (startPos.latitude >= endPos.latitude && startPos.latitude >= endPos.longitude) {
                     return (float) (Math.toDegrees(Math.atan(lon / lat)) + 180);
                 } else {
-                    if (startPos.latitude >= endPos.latitude && startPos.latitude >= endPos.longitude) {
+                    if (startPos.latitude < endPos.latitude && startPos.longitude >= endPos.longitude) {
                         return (float) ((90 - Math.toDegrees(Math.atan(lon / lat))) + 270);
                     }
 
@@ -264,13 +392,34 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     }
 
     private void getTheFinalDestination() {
-        btnFindDest = findViewById(R.id.btnFindDest);
-        btnFindDest.setOnClickListener(this);
-        etDestination /**/ = findViewById(R.id.etDestination);
+//        btnFindDest = findViewById(R.id.btnFindDest);
+//        btnFindDest.setOnClickListener(this);
+//        etDestination /**/ = findViewById(R.id.etDestination);
+
+
         latLngs = new ArrayList<LatLng>();
         mService = Common.getGoogleApi();
 
 
+        placeAutCompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        placeAutCompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                if (materialAnimatedSwitch.isChecked()) {
+                    dest = place.getAddress().toString();
+                    dest = dest.replace(" ", "+");
+
+                    getDirection();
+                }
+
+
+            }
+
+            @Override
+            public void onError(Status status) {
+
+            }
+        });
     }
 
     public void checkLocationPermission() {
@@ -321,7 +470,12 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     Snackbar.make(mapFragment.getView(), "The Driver Is Online Now", Snackbar.LENGTH_SHORT).show();
                 } else {
                     stopLocationUpdates();
-                    currentMarker.remove();
+                    if (currentMarker != null) {
+                        currentMarker.remove();
+                    }
+                    if (carMarker != null) {
+                        carMarker.remove();
+                    }
                     if (mPopupWindow != null) {
                         if (mPopupWindow.isShowing()) {
                             mPopupWindow.dismiss();
@@ -406,8 +560,8 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                         currentMarker = mMap.addMarker(new MarkerOptions()
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
                                 //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                                .title("Online Driver")
-                                .snippet("Driver1")
+                                //.title("Online Driver")
+                                //.snippet("Driver1")
                                 .position(new LatLng(lat, lon))
                         );
 
@@ -488,11 +642,13 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         mMap.setOnCameraMoveStartedListener(this);
         mMap.setOnCameraMoveListener(this);
 
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mMap.setTrafficEnabled(false);
-        mMap.setIndoorEnabled(false);
+        //mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+//        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+//        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        //mMap.setTrafficEnabled(false);
+        //mMap.setIndoorEnabled(true);
         //mMap.setBuildingsEnabled(false);
-        mMap.getUiSettings().setZoomControlsEnabled(true);
+        //mMap.getUiSettings().setZoomControlsEnabled(true);
 
 
         // Add a currentMarker in Sydney and move the camera
@@ -722,7 +878,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         mPopupWindow = popupWindow;
 
         //showing the PopupWindow
-        updatePopup();
+        // updatePopup();
 
 
         return true;
@@ -761,7 +917,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
     @Override
     public void onCameraMove() {
-        updatePopup();
+        //updatePopup();
     }
 
     @Override
@@ -771,18 +927,18 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
     @Override
     public void onClick(View v) {
-        if (v.equals(btnFindDest)) {
-            getDirection();
-
-
-        }
+//        if (v.equals(btnFindDest)) {
+//            getDirection();
+//
+//
+//        }
     }
 
     private void getDirection() {
 
-        dest = etDestination.getText().toString();
-        dest = dest.replace(" ", "+");
-        Log.e("Dest20130074", dest);
+//        dest = etDestination.getText().toString();
+//        dest = dest.replace(" ", "+");
+//        Log.e("Dest20130074", dest);
 
         currentPos = new LatLng(location.getLatitude(), location.getLongitude());
         String requestApi = "https://maps.googleapis.com/maps/api/directions/json?" +
@@ -827,7 +983,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     polylineOptionsBlack.startCap(new SquareCap());
                     polylineOptionsBlack.endCap(new SquareCap());
                     polylineOptionsBlack.jointType(JointType.ROUND);
-//                    polylineOptionsBlack.addAll(latLngs);
+                    polylineOptionsBlack.addAll(latLngs);
                     polylineBlack = mMap.addPolyline(polylineOptionsBlack);
 
 
@@ -837,12 +993,17 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     polylineOptionsGray.startCap(new SquareCap());
                     polylineOptionsGray.endCap(new SquareCap());
                     polylineOptionsGray.jointType(JointType.ROUND);
-                    polylineOptionsGray.addAll(latLngs);
+//                    polylineOptionsGray.addAll(latLngs);
                     polylineGray = mMap.addPolyline(polylineOptionsGray);
 
-                    mMap.addMarker(new MarkerOptions().position(latLngs.get(latLngs.size() - 1)));
+                    mMap.addMarker(new MarkerOptions()
+                            .position(latLngs.get(latLngs.size() - 1))
+                            .title("Pickup Location")
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.home1))
+                    );
 
 
+                    //set animation
                     final ValueAnimator valueAnimator = ValueAnimator.ofInt(0, 100);
                     valueAnimator.setInterpolator(new LinearInterpolator());
                     valueAnimator.setDuration(2000);
@@ -858,8 +1019,8 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                             size = points.size();
                             percentValue = (int) valueAnimator.getAnimatedValue();
                             newPoints = (int) (size * (percentValue / 100.0f));
-                            List<LatLng> latLng = latLngs.subList(0, newPoints);
-                            polylineGray.setPoints(latLng);
+                            List<LatLng> p = latLngs.subList(0, newPoints);
+                            polylineGray.setPoints(p);
 
                         }
                     });
@@ -869,10 +1030,10 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     carMarker = mMap.addMarker(new MarkerOptions().
                             position(currentPos)
                             .flat(true)
-                            .title("Destination")
-                            .snippet("Home")
+                            //.title("Destination")
+                            //.snippet("Home")
                             //.icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.home3))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
                     );
 
                     handler = new Handler();

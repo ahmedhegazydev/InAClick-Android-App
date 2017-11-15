@@ -1,10 +1,10 @@
 package com.example.hp.in_a_click.model;
 
 /**
- * Created by hp on 11/4/2017.
+ * Created by hp on 11/15/2017.
  */
 
-public class InAClickUser {
+public class UserNormal {
 
 
     String userEmail;
@@ -13,7 +13,15 @@ public class InAClickUser {
     String userPhone;
 
 
-    public InAClickUser() {
+    public UserNormal() {
+    }
+
+    public UserNormal(String userEmail, String userPass, String userName, String userPhone) {
+
+        this.userEmail = userEmail;
+        this.userPass = userPass;
+        this.userName = userName;
+        this.userPhone = userPhone;
     }
 
     public String getUserEmail() {
@@ -45,14 +53,6 @@ public class InAClickUser {
     }
 
     public void setUserPhone(String userPhone) {
-        this.userPhone = userPhone;
-    }
-
-    public InAClickUser(String userEmail, String userPass, String userName, String userPhone) {
-
-        this.userEmail = userEmail;
-        this.userPass = userPass;
-        this.userName = userName;
         this.userPhone = userPhone;
     }
 }

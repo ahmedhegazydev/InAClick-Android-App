@@ -11,33 +11,31 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <ScrollView
-            android:id="@+id/sv"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:background="@drawable/button_selector"
+            android:padding="5dp"
+            android:text="Chose more than one option, if u want Then go to your map"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:lines="2"
+            android:maxLines="2"
+            android:minLines="2" />
 
-            <LinearLayout
-                android:id="@+id/llMain"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center"
-                >
+        <LinearLayout
+            android:id="@+id/llMain"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_weight="1"
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/button_selector"
-                    android:padding="5dp"
-                    android:text="Chose more than one option, if u want\nThen go to your map"
-                    android:textColor="#FFFFFF"
-                    android:textSize="20sp"
+            >
 
 
-                    />
-            </LinearLayout>
-        </ScrollView>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -49,24 +47,24 @@
             >
 
             <Button
+                android:id="@+id/btnDontAsk"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="50"
-                android:id="@+id/btnDontAsk"
                 android:background="@drawable/button_selector"
                 android:text="Don't ask me again"
                 android:textColor="#FFFFFF"
                 android:textStyle="bold" />
 
             <Button
+                android:id="@+id/btnNext"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="50"
                 android:background="@drawable/button_selector"
                 android:text="Next"
-                android:id="@+id/btnNext"
                 android:textColor="#FFFFFF"
                 android:textStyle="bold" />
         </LinearLayout>

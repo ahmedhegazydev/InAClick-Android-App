@@ -90,8 +90,8 @@ public class Main2Activity extends AppCompatActivity implements GoogleApiClient.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //setContentView(R.layout.activity_main2);
-//        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        //setContentView(R.layout_select_role.activity_main2);
+//        mBinding = DataBindingUtil.setContentView(this, R.layout_select_role.activity_main);
         mLatitudeLabel = getResources().getString(R.string.latitude_label);
         mLongitudeLabel = getResources().getString(R.string.longitude_label);
         mLastUpdateTimeLabel = getResources().getString(R.string.last_update_time_label);

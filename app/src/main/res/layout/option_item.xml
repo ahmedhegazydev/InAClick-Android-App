@@ -28,7 +28,7 @@
         android:padding="10dp"
         android:text="Cheapest"
         android:textColor="#FFFFFF"
-        android:textSize="20sp"
+        android:textSize="30sp"
         android:textStyle="bold" />
 
 </LinearLayout>

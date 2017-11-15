@@ -1,0 +1,34 @@
+Support user (Home/Car) login via
+1-Email = > Email Confirmation
+2-Phone Number = > SMS
+Reg
+1-With social  media
+2-With email and pass and phone number
+===============
+if login
+with email
+-he will have to verify his email
+with phone
+-he will have to verify his phone number using the sent code
+===================================
+Will help user in registration via social media
+by getting the available info from Facebook/Google siginin and complete his reg
+===================================
+will support only one app for both dealers (Driver/Home Owners and Trips/Homes for Normal User)
+=============
+the login GUI will detect who the logged in and navigate him for appropriate interface(User Map Or Driver Map)
+================================
+
+Keys Maker
+Functions in future
+before reg add  restriction model, full option , airconditioning, each hav
+2008 above
+
+home owner
+=============================
+Error:Execution failed for task ':app:processDebugManifest'. >
+Manifest merger failed : Attribute meta-data#com.facebook.sdk.ApplicationId@value value=(@string/fb_app_id20130074)
+ from AndroidManifest.xml:122:13-54 is also present at [com.firebaseui:firebase-ui-auth:1.2.0] AndroidManifest.xml:23:13-60 value=(@string/facebook_application_id).
+Suggestion: add 'tools:replace="android:value"' to <meta-data> element at AndroidManifest.xml:120:9-122:57 to override.
+
+

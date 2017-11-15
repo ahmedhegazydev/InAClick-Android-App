@@ -1,5 +1,6 @@
 package com.example.hp.in_a_click.residemenu;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -9,6 +10,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.hp.in_a_click.R;
+import com.example.hp.in_a_click.UserMapActvity;
+import com.example.hp.in_a_click.WorkerMapActvity;
+import com.example.hp.in_a_click.signinout.DriverSignInOutActivity;
 import com.special.ResideMenu.ResideMenu;
 import com.special.ResideMenu.ResideMenuItem;
 
@@ -16,9 +20,8 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
 
     private ResideMenu resideMenu;
     private MenuActivity mContext;
-    private ResideMenuItem itemUser;
+    private ResideMenuItem itemUserHome, itemUserTrip, itemWorkerDriver, itemWorkerHome;
     private ResideMenuItem itemProfile;
-    private ResideMenuItem itemWorker;
     private ResideMenuItem itemSettings, itemSignout, itemAboutUs, itemContactUs;
     private ResideMenu.OnMenuListener menuListener = new ResideMenu.OnMenuListener() {
         @Override
@@ -45,7 +48,7 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
 
         setUpMenu();
         if (savedInstanceState == null)
-            changeFragment(new WorkerFragment());
+            changeFragment(new OrderFragment());
     }
 
     private void setUpMenu() {
@@ -63,8 +66,6 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
 
         // create menu items;
         itemProfile = new ResideMenuItem(this, R.drawable.icon_profile, "Profile");
-        itemWorker = new ResideMenuItem(this, R.drawable.icon_home, "Worker");
-        itemUser = new ResideMenuItem(this, R.drawable.icon_calendar, "User");
         itemSettings = new ResideMenuItem(this, R.drawable.icon_settings, "Settings");
         itemAboutUs = new ResideMenuItem(this, R.drawable.icon_settings, "About");
         itemContactUs = new ResideMenuItem(this, R.drawable.icon_settings, "Contact");
@@ -72,8 +73,6 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
 
 
         itemProfile.setOnClickListener(this);
-        itemWorker.setOnClickListener(this);
-        itemUser.setOnClickListener(this);
         itemSettings.setOnClickListener(this);
         itemAboutUs.setOnClickListener(this);
         itemContactUs.setOnClickListener(this);
@@ -81,8 +80,28 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
 
 
         resideMenu.addMenuItem(itemProfile, ResideMenu.DIRECTION_LEFT);
-        resideMenu.addMenuItem(itemWorker, ResideMenu.DIRECTION_LEFT);
-        resideMenu.addMenuItem(itemUser, ResideMenu.DIRECTION_LEFT);
+        if (getIntent().getStringExtra(DriverSignInOutActivity.WHO).equalsIgnoreCase("User")) {
+            itemUserTrip = new ResideMenuItem(this, R.drawable.icon_home, "Trip");
+            itemUserHome = new ResideMenuItem(this, R.drawable.icon_calendar, "Rent Home");
+
+
+            itemUserHome.setOnClickListener(this);
+            itemUserTrip.setOnClickListener(this);
+
+            resideMenu.addMenuItem(itemUserHome, ResideMenu.DIRECTION_LEFT);
+            resideMenu.addMenuItem(itemUserTrip, ResideMenu.DIRECTION_LEFT);
+
+        } else {
+            itemWorkerDriver = new ResideMenuItem(this, R.drawable.icon_home, "Driver");
+            itemWorkerHome = new ResideMenuItem(this, R.drawable.icon_calendar, "Sell Home");
+
+
+            itemWorkerHome.setOnClickListener(this);
+            itemWorkerDriver.setOnClickListener(this);
+
+            resideMenu.addMenuItem(itemWorkerDriver, ResideMenu.DIRECTION_LEFT);
+            resideMenu.addMenuItem(itemWorkerHome, ResideMenu.DIRECTION_LEFT);
+        }
         resideMenu.addMenuItem(itemSettings, ResideMenu.DIRECTION_LEFT);
         resideMenu.addMenuItem(itemAboutUs, ResideMenu.DIRECTION_LEFT);
         resideMenu.addMenuItem(itemContactUs, ResideMenu.DIRECTION_LEFT);
@@ -106,6 +125,8 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
         });
     }
 
+    public final static String WHO = "WHO";
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         return resideMenu.dispatchTouchEvent(ev);
@@ -114,12 +135,30 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
     @Override
     public void onClick(View view) {
 
-        if (view == itemWorker) {
-            changeFragment(new WorkerFragment());
+        if (view == itemUserHome) {
+            Intent intent = new Intent(MenuActivity.this, UserMapActvity.class);
+            intent.putExtra(WHO, "SearchForHome");
+            startActivity(intent);
         }
-        if (view == itemUser) {
-            changeFragment(new UserFragment());
+
+        if (view == itemUserTrip) {
+            Intent intent = new Intent(MenuActivity.this, UserMapActvity.class);
+            intent.putExtra(WHO, "Trip");
+            startActivity(intent);
         }
+
+        if (view == itemWorkerDriver) {
+            Intent intent = new Intent(MenuActivity.this, WorkerMapActvity.class);
+            intent.putExtra(WHO, "Driver");
+            startActivity(intent);
+        }
+
+        if (view == itemWorkerHome) {
+            Intent intent = new Intent(MenuActivity.this, WorkerMapActvity.class);
+            intent.putExtra(WHO, "HomeOwner");
+            startActivity(intent);
+        }
+
 
         if (view == itemAboutUs) {
             changeFragment(new AboutUsFragment());

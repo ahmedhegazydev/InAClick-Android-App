@@ -12,12 +12,20 @@
         android:orientation="vertical"
         android:weightSum="30">
 
+
+        <fragment
+            android:id="@+id/place_autocomplete_fragment"
+            android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="5" />
+
         <fragment
             android:id="@+id/map_for_driver"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="25"
+            android:layout_weight="20"
 
             />
 
@@ -32,61 +40,64 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <!--<LinearLayout-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:gravity="center"-->
+                <!--android:orientation="horizontal"-->
+                <!--android:weightSum="100">-->
+
+                <com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch
+                    android:id="@+id/location_switch"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:weightSum="100">
-
-                    <com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch
-                        android:id="@+id/location_switch"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        app:ball_press_color="@color/md_white_1000"
-                        app:ball_release_color="@color/md_deep_orange_500"
-                        app:base_press_color="@color/md_deep_orange_50"
-                        app:base_release_color="@color/md_deep_orange_900"
-                        app:icon_press="@drawable/ic_location_on"
-                        app:icon_release="@drawable/ic_location_off"
-
-                        />
-
-                    <Button
-                        android:id="@+id/btnFindDest"
-                        android:layout_width="match_parent"
-                        android:layout_height="58dp"
-                        android:layout_margin="5dp"
-                        android:layout_weight="82.50"
-                        android:gravity="center"
-                        android:padding="10dp"
-                        android:text="Find Driver"
-                        android:textColor="@color/md_deep_orange_500"
-                        android:textSize="20sp"
-
-                        />
-
-                </LinearLayout>
-
-                <com.rengwuxian.materialedittext.MaterialEditText
-                    android:id="@+id/etDestination"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Enter Destination"
-                    android:padding="5dp"
+                    android:layout_margin="5dp"
+                    app:ball_press_color="@color/md_white_1000"
+                    app:ball_release_color="@color/md_deep_orange_500"
+                    app:base_press_color="@color/md_deep_orange_50"
+                    app:base_release_color="@color/md_deep_orange_900"
+                    app:icon_press="@drawable/ic_location_on"
+                    app:icon_release="@drawable/ic_location_off"
 
                     />
+
+                <!--<Button-->
+                <!--android:id="@+id/btnFindDest"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="58dp"-->
+                <!--android:layout_margin="5dp"-->
+                <!--android:layout_weight="82.50"-->
+                <!--android:gravity="center"-->
+                <!--android:padding="10dp"-->
+                <!--android:text="Find Driver"-->
+                <!--android:textColor="@color/md_deep_orange_500"-->
+                <!--android:textSize="20sp"-->
+
+                <!--/>-->
+
+                <!--</LinearLayout>-->
+
+                <!--<com.rengwuxian.materialedittext.MaterialEditText-->
+                <!--android:id="@+id/etDestination"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:hint="Enter Destination"-->
+                <!--android:padding="5dp"-->
+                <!--/>-->
 
             </LinearLayout>
 
 
+
+
         </android.support.v7.widget.CardView>
     </LinearLayout>
+
+
 </RelativeLayout>
 
 
