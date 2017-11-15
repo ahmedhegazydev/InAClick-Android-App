@@ -105,6 +105,8 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
     private static final int STATE_SIGNIN_FAILED = 5;
     private static final int STATE_SIGNIN_SUCCESS = 6;
     private static final int RC_SIGN_IN = 7;
+    LinearLayout llSelectedRole = null;
+    TextView tvRegSelectedRole = null;
     FirebaseDatabase firebaseDatabase = null;
     DatabaseReference refUsers = null;
     FirebaseAuth firebaseAuth = null;
@@ -157,9 +159,31 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
     GoogleSignInClient mGoogleSignInClient = null;
     GoogleApiClient googleApiClient = null;
     BottomDialog bottomDialogWorkerOptios = null;
-    static LinearLayout llSelectedRole = null;
-    static TextView tvRegSelectedRole = null;
     String googleUserEmail = "", googleUserPhone = "", googleUserName = "";
+    View.OnClickListener clickListeneerGoogleSignin = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            signInWithGooglePlus();
+//            GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(context);
+//            if (acct != null) {
+//                String personName = acct.getDisplayName();
+//                String personGivenName = acct.getGivenName();
+//                String personFamilyName = acct.getFamilyName();
+//                String personEmail = acct.getEmail();
+//                String personId = acct.getId();
+//                Uri personPhoto = acct.getPhotoUrl();
+//
+//                showRegister();
+//                etEmailReg.setText(personEmail);
+//                etNameReg.setText(personName);
+//
+//
+//            } else {
+//                signInWithGooglePlus();
+//            }
+        }
+    };
     private String strWorkerOrUser = "";
     private CallbackManager callbackManager;
     private String mVerificationId;
@@ -268,31 +292,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
 
     }
-
-    View.OnClickListener clickListeneerGoogleSignin = new View.OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-            signInWithGooglePlus();
-//            GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(context);
-//            if (acct != null) {
-//                String personName = acct.getDisplayName();
-//                String personGivenName = acct.getGivenName();
-//                String personFamilyName = acct.getFamilyName();
-//                String personEmail = acct.getEmail();
-//                String personId = acct.getId();
-//                Uri personPhoto = acct.getPhotoUrl();
-//
-//                showRegister();
-//                etEmailReg.setText(personEmail);
-//                etNameReg.setText(personName);
-//
-//
-//            } else {
-//                signInWithGooglePlus();
-//            }
-        }
-    };
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -1711,7 +1710,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         Snackbar.make(rlMainView, "Network Error !!, Google Play Services", Snackbar.LENGTH_SHORT).show();
     }
 
-    public static void showWorkerOption(View view) {
+    public void showWorkerOption(View view) {
 
 //        if (view == null)
 //            return;
@@ -1852,7 +1851,8 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
     }
 
-    public static class FragmentModalBottomSheet extends BottomSheetDialogFragment {
+    @SuppressLint("ValidFragment")
+    class FragmentModalBottomSheet extends BottomSheetDialogFragment {
 
         private BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
 
