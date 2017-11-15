@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+
+    <item
+        android:title="Find Me"
+        android:id="@+id/driverWhereIam"
+        />
+    <item
+        android:title="Set Me As Online"
+        android:id="@+id/driverSetAsOnline"
+        />
+    <item
+        android:title="Set Me As Offline"
+        android:id="@+id/driverSetAsOffline"
+        />
+    <item
+        android:title="Find All My Friends"
+        android:id="@+id/driverVisibleAllDrivers"
+        />
+    <item
+        android:title="SignOut"
+        android:id="@+id/driverSignout"
+        />
+
+
+
+
+</menu>

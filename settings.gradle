@@ -1,6 +1,7 @@
 include ':app'
 include  ':sweetsheet'
 include ':ResideMenu'
+//include ':ccp'
 //include ':spotlight'
 
 //override your build tools version in gradle.properties
