@@ -95,7 +95,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <com.hbb20.CountryCodePicker
                 android:id="@+id/countryCodePicker"

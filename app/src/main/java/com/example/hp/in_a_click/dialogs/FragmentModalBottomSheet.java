@@ -57,6 +57,7 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
     @Override
     public void setupDialog(Dialog dialog, int style) {
         super.setupDialog(dialog, style);
+
         View contentView = View.inflate(getContext(), R.layout.layout_select_role, null);
         dialog.setContentView(contentView);
 

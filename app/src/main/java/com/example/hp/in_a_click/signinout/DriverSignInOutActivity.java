@@ -13,6 +13,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
@@ -33,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.hp.in_a_click.R;
+import com.example.hp.in_a_click.dialogs.FragmentModalBottomSheet;
 import com.example.hp.in_a_click.model.UserDriver;
 import com.example.hp.in_a_click.model.UserHomeOwner;
 import com.example.hp.in_a_click.model.UserNormal;
@@ -70,11 +72,17 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.auth.ProviderQueryResult;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import com.hbb20.CountryCodePicker;
+import com.irozon.sneaker.Sneaker;
 import com.rey.material.widget.Switch;
 
 import org.json.JSONException;
@@ -161,7 +169,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
     BottomDialog bottomDialogWorkerOptios = null;
     String googleUserEmail = "", googleUserPhone = "", googleUserName = "";
     View.OnClickListener clickListeneerGoogleSignin = new View.OnClickListener() {
-
         @Override
         public void onClick(View v) {
             signInWithGooglePlus();
@@ -184,6 +191,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //            }
         }
     };
+    boolean emailExist = false;
     private String strWorkerOrUser = "";
     private CallbackManager callbackManager;
     private String mVerificationId;
@@ -237,6 +245,71 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //
 //
 //    }
+//     class FragmentModalBottomSheet extends BottomSheetDialogFragment {
+//
+//        private BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
+//            @Override
+//            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+//                switch (newState) {
+//                    case BottomSheetBehavior.STATE_COLLAPSED: {
+//                        //Log.d("BSB","collapsed") ;
+//
+//                    }
+//                    case BottomSheetBehavior.STATE_SETTLING: {
+//                        //Log.d("BSB","settling") ;
+//
+//                    }
+//                    case BottomSheetBehavior.STATE_EXPANDED: {
+//                        //Log.d("BSB","expanded") ;
+//
+//                    }
+//                    case BottomSheetBehavior.STATE_HIDDEN: {
+//                        //Log.d("BSB" , "hidden") ;
+//                        llSelectedRole.setVisibility(View.VISIBLE);
+//                        tvRegSelectedRole.setText(strDriverOrHome);
+//
+//                        dismiss();
+//                    }
+//                    case BottomSheetBehavior.STATE_DRAGGING: {
+//                        //Log.d("BSB","dragging") ;
+//
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+//                // Log.d("BSB","sliding " + slideOffset ) ;
+//            }
+//        };
+//
+////        public  FragmentModalBottomSheet newInstance(String title) {
+////            FragmentModalBottomSheet frag = new FragmentModalBottomSheet();
+////            Bundle args = new Bundle();
+////            args.putString("title", title);
+////            frag.setArguments(args);
+////            return frag;
+////        }
+//
+//
+//
+//        @Override
+//        public void setupDialog(Dialog dialog, int style) {
+//            super.setupDialog(dialog, style);
+//            View contentView = View.inflate(getContext(), R.layout.layout_select_role, null);
+//            dialog.setContentView(contentView);
+//
+//            ///Accessing the select role worker options view
+//            //showWorkerOption(contentView);
+//
+//            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) ((View) contentView.getParent()).getLayoutParams();
+//            CoordinatorLayout.Behavior behavior = params.getBehavior();
+//
+//            if (behavior != null && behavior instanceof BottomSheetBehavior) {
+//                ((BottomSheetBehavior) behavior).setBottomSheetCallback(mBottomSheetBehaviorCallback);
+//            }
+//        }
+//    }
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
 
     public final static boolean isValidEmail(CharSequence target) {
@@ -264,7 +337,41 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         init();
         initGoogleLoginButton();
 
+        if (checkAccountEmailExistInFirebase("wowrar1234@gmail.com")) {
+            Toast.makeText(context, "This email already exists ", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, "This email  not exist ", Toast.LENGTH_SHORT).show();
+        }
 
+
+    }
+
+    private boolean checkIfEmailExistForSmrUserTest(String insertedEmailWhileReg) {
+        Query query = refUsers.orderByChild("userEmail").equalTo(insertedEmailWhileReg);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //here means the value exist
+//here means the value not exist
+                emailExist = dataSnapshot.exists();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+        return emailExist;
+    }
+
+    private boolean checkAccountEmailExistInFirebase(String email) {
+
+        FirebaseAuth.getInstance().fetchProvidersForEmail(email).addOnCompleteListener(new OnCompleteListener<ProviderQueryResult>() {
+            @Override
+            public void onComplete(@NonNull Task<ProviderQueryResult> task) {
+                emailExist = !task.getResult().getProviders().isEmpty();
+            }
+        });
+        return emailExist;
     }
 
     private void initGoogleLoginButton() {
@@ -343,7 +450,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             // a listener.
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
-            firebaseAuthWithGoogle(task);
+            //firebaseAuthWithGoogle(task);
         }
 //        if (requestCode == RC_SIGN_IN) {
 //            GoogleSignInResult googleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
@@ -992,10 +1099,18 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     cbUserReg.setChecked(false);
-                    //showRole(getApplicationContext(), viewRegister);
+                    showRole(getApplicationContext(), viewRegister);
                     //showWorkerOption(null);
-                    FragmentModalBottomSheet fragmentModalBottomSheet = new FragmentModalBottomSheet();
-                    fragmentModalBottomSheet.show(getSupportFragmentManager(), "BottomSheet Fragment");
+
+
+                    //new FragmentModalBottomSheet().show(getSupportFragmentManager(), "BottomSheet Fragment");
+//                    FragmentModalBottomSheet fragmentModalBottomSheet = new FragmentModalBottomSheet();
+//                    fragmentModalBottomSheet.show(getSupportFragmentManager(), "BottomSheet Fragment");
+
+//                    FragmentManager fm = getSupportFragmentManager();
+//                    FragmentModalBottomSheet fragmentModalBottomSheet = FragmentModalBottomSheet.newInstance("Some Title");
+//                    fragmentModalBottomSheet.show(fm, "fragment_edit_name");
+
 
                 } else {
                     cbUserReg.setChecked(true);
@@ -1045,7 +1160,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
     public void registerUser() {
 
-
         if (TextUtils.isEmpty(etEmailReg.getText().toString())) {
             //Snackbar.make(rlMainView, "Enter Email", Snackbar.LENGTH_SHORT).show();
             //etEmail.setError("Enter Email");
@@ -1067,6 +1181,14 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //            etPass.setError("Enter Password");
             tvErrorRegister.setVisibility(View.VISIBLE);
             tvErrorRegister.setText("Enter Password");
+            etPassReg.requestFocus();
+            return;
+        }
+        if (etPassReg.getText().toString().trim().length() <= 6) {
+//            Snackbar.make(rlMainView, "Enter Password", Snackbar.LENGTH_SHORT).show();
+//            etPass.setError("Enter Password");
+            tvErrorRegister.setVisibility(View.VISIBLE);
+            tvErrorRegister.setText("Password is too short");
             etPassReg.requestFocus();
             return;
         }
@@ -1093,12 +1215,24 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             return;
         }
 
-        if (strDriverOrHome == "") {
+        if (cbUserReg.isChecked()) {
+            //do nothing
+        } else {
+            if (strDriverOrHome == "") {
 //            Snackbar.make(rlMainView, "Please Select Your Role", Snackbar.LENGTH_SHORT).show();
+                tvErrorRegister.setVisibility(View.VISIBLE);
+                tvErrorRegister.setText("Please Select Your Role");
+                return;
+            }
+        }
+
+        //check if email already exists
+        if (checkIfEmailExistForSmrUser(etEmailReg.getText().toString())) {
             tvErrorRegister.setVisibility(View.VISIBLE);
-            tvErrorRegister.setText("Please Select Your Role");
+            tvErrorRegister.setText("This email already exists \n You can login directly");
             return;
         }
+
 
         tvErrorRegister.setVisibility(View.GONE);
 
@@ -1208,6 +1342,35 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
     }
 
+    public boolean checkIfEmailExistForSmrUser(String insertedEmailWhileReg) {
+//        if (firebaseAuth == null)
+//            return false;
+//
+        Query query = null;
+        if (cbUserReg.isChecked()) {
+            query = refUsers.orderByChild("userEmail").equalTo(insertedEmailWhileReg);
+        } else {
+            if (strDriverOrHome == TAG_DRIVER) {
+                query = refWorkers.child(TAG_DRIVER).orderByChild("userEmail").equalTo(insertedEmailWhileReg);
+            } else {
+                query = refWorkers.child(TAG_HOME_OWNER).orderByChild("userEmail").equalTo(insertedEmailWhileReg);
+            }
+        }
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //here means the value exist
+//here means the value not exist
+                emailExist = dataSnapshot.exists();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+        return emailExist;
+    }
+
     private void hideRole() {
 
         if (linearLayout != null) {
@@ -1285,7 +1448,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                     wall1.setVisibility(View.VISIBLE);
 
                     textView1.setTextColor(Color.GRAY);
-                    textView1.setTextSize(TypedValue.COMPLEX_UNIT_SP, textView1.getTextSize());
+                    textView1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
 
                     //view2
                     textView2 = view2.findViewById(R.id.tvHomeAsRent);
@@ -1295,14 +1458,18 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                     wall2.setVisibility(View.GONE);
 
                     textView2.setTextColor(getResources().getColor(android.R.color.darker_gray));
-                    textView2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+                    textView2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
 
                     b = false;
                     b2 = true;
 
-                    strDriverOrHome = "Drivers";
+                    strDriverOrHome = TAG_DRIVER;
 
 
+                    Sneaker.with(getParent())
+                            .setTitle("Success!!")
+                            .setMessage("This is the success message")
+                            .sneakSuccess();
                 }
 
 
@@ -1321,7 +1488,8 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                     wall2.setVisibility(View.VISIBLE);
 
                     textView2.setTextColor(Color.GRAY);
-                    textView2.setTextSize(TypedValue.COMPLEX_UNIT_SP, textView2.getTextSize());
+                    //textView2.setTextSize(TypedValue.COMPLEX_UNIT_SP, textView2.getTextSize());
+                    textView2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
 
 
                     //view1
@@ -1332,13 +1500,13 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                     wall1.setVisibility(View.INVISIBLE);
 
                     textView1.setTextColor(getResources().getColor(android.R.color.darker_gray));
-                    textView1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+                    textView1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
 
 
                     b = true;
                     b2 = false;
 
-                    strDriverOrHome = "Homes";
+                    strDriverOrHome = TAG_HOME_OWNER;
 
 
                 }
@@ -1849,70 +2017,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         bottomDialogWorkerOptios.show();
 
 
-    }
-
-    @SuppressLint("ValidFragment")
-    class FragmentModalBottomSheet extends BottomSheetDialogFragment {
-
-        private BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
-
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                switch (newState) {
-
-                    case BottomSheetBehavior.STATE_COLLAPSED: {
-                        //Log.d("BSB","collapsed") ;
-
-                    }
-                    case BottomSheetBehavior.STATE_SETTLING: {
-                        //Log.d("BSB","settling") ;
-
-                    }
-                    case BottomSheetBehavior.STATE_EXPANDED: {
-                        //Log.d("BSB","expanded") ;
-
-
-                    }
-                    case BottomSheetBehavior.STATE_HIDDEN: {
-                        //Log.d("BSB" , "hidden") ;
-                        llSelectedRole.setVisibility(View.VISIBLE);
-                        tvRegSelectedRole.setText(strDriverOrHome);
-
-                        dismiss();
-                    }
-                    case BottomSheetBehavior.STATE_DRAGGING: {
-                        //Log.d("BSB","dragging") ;
-
-
-                    }
-                }
-
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                // Log.d("BSB","sliding " + slideOffset ) ;
-
-
-            }
-        };
-
-        @Override
-        public void setupDialog(Dialog dialog, int style) {
-            super.setupDialog(dialog, style);
-            View contentView = View.inflate(getContext(), R.layout.layout_select_role, null);
-            dialog.setContentView(contentView);
-
-            ///Accessing the select role worker options view
-            showWorkerOption(contentView);
-
-            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) ((View) contentView.getParent()).getLayoutParams();
-            CoordinatorLayout.Behavior behavior = params.getBehavior();
-
-            if (behavior != null && behavior instanceof BottomSheetBehavior) {
-                ((BottomSheetBehavior) behavior).setBottomSheetCallback(mBottomSheetBehaviorCallback);
-            }
-        }
     }
 
 

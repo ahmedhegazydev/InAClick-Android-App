@@ -180,6 +180,9 @@ dependencies {
     compile 'com.hbb20:ccp:2.0.9'
 //    compile 'com.github.joielechong:countrycodepicker:2.1.5'
 
+    //circular progress bar
+    ///compile 'com.github.lzyzsd:circleprogress:1.2.1'
+    compile 'com.github.jakob-grabner:Circle-Progress-View:v1.3'
 
 }
 apply plugin: 'com.google.gms.google-services'
