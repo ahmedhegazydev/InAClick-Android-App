@@ -6,12 +6,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
@@ -20,10 +24,12 @@ import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -979,6 +985,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             etEmail.requestFocus();
             tvErrorLogin.setVisibility(View.VISIBLE);
             tvErrorLogin.setText("Enter Email");
+            tvErrorLogin.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
             return;
         }
         if (TextUtils.isEmpty(etPass.getText().toString())) {
@@ -986,6 +993,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             etPass.requestFocus();
             tvErrorLogin.setVisibility(View.VISIBLE);
             tvErrorLogin.setText("Enter Password");
+            tvErrorLogin.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
             return;
         }
 
@@ -994,6 +1002,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             etPass.requestFocus();
             tvErrorLogin.setVisibility(View.VISIBLE);
             tvErrorLogin.setText("Password  is too short");
+            tvErrorLogin.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
             return;
         }
 
@@ -1041,8 +1050,9 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
     }
 
+    EditText etPhoneNumber = null;
     public void loginUserWithPhoneNumber() {
-        final EditText etPhoneNumber = viewLogin.findViewById(R.id.etPhoneNumber);
+        etPhoneNumber = viewLogin.findViewById(R.id.etPhoneNumber);
 
         //assign the country code picker to the phone number edittext
         countryCodePicker = viewLogin.findViewById(R.id.countryCodePicker);
@@ -1059,13 +1069,14 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             etPhoneNumber.requestFocus();
             tvErrorLogin.setVisibility(View.VISIBLE);
             tvErrorLogin.setText("Enter Phone Number");
+            tvErrorLogin.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
             return;
         }
 
         tvErrorLogin.setVisibility(View.GONE);
-        waitLogin = new SpotsDialog(DriverSignInOutActivity.this, "Please wait");
+//        waitLogin = new SpotsDialog(DriverSignInOutActivity.this, "Please wait");
         //btnSIgnIn.setEnabled(false);
-        waitLogin.show();
+//        waitLogin.show();
 
 
         //ok the , let's go to signin with phone number
@@ -1179,6 +1190,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             //etEmail.setError("Enter Email");
             tvErrorRegister.setVisibility(View.VISIBLE);
             tvErrorRegister.setText("Enter Email");
+            tvErrorRegister.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
             etEmailReg.requestFocus();
             return;
         }
@@ -1187,6 +1199,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //            etEmail.setError("Enter Valid Email");
             tvErrorRegister.setVisibility(View.VISIBLE);
             tvErrorRegister.setText("Enter Valid Email");
+            tvErrorRegister.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
             etEmailReg.requestFocus();
             return;
         }
@@ -1195,6 +1208,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //            etPass.setError("Enter Password");
             tvErrorRegister.setVisibility(View.VISIBLE);
             tvErrorRegister.setText("Enter Password");
+            tvErrorRegister.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
             etPassReg.requestFocus();
             return;
         }
@@ -1203,6 +1217,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //            etPass.setError("Enter Password");
             tvErrorRegister.setVisibility(View.VISIBLE);
             tvErrorRegister.setText("Password is too short");
+            tvErrorRegister.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
             etPassReg.requestFocus();
             return;
         }
@@ -1211,6 +1226,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //            etName.setError("Enter Name");
             tvErrorRegister.setVisibility(View.VISIBLE);
             tvErrorRegister.setText("Enter Name");
+            tvErrorRegister.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
             etNameReg.requestFocus();
             return;
         }
@@ -1219,6 +1235,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //            etPhone.setError("Enter Phone Number");
             tvErrorRegister.setVisibility(View.VISIBLE);
             tvErrorRegister.setText("Enter Phone Number");
+            tvErrorRegister.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
             etPhoneReg.requestFocus();
             return;
         }
@@ -1226,6 +1243,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //            Snackbar.make(rlMainView, "Please Select Who Are You", Snackbar.LENGTH_SHORT).show();
             tvErrorRegister.setVisibility(View.VISIBLE);
             tvErrorRegister.setText("Please Select Who Are You\nRegister As");
+            tvErrorRegister.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
             return;
         }
 
@@ -1236,6 +1254,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //            Snackbar.make(rlMainView, "Please Select Your Role", Snackbar.LENGTH_SHORT).show();
                 tvErrorRegister.setVisibility(View.VISIBLE);
                 tvErrorRegister.setText("Please Select Your Role");
+                tvErrorRegister.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
                 return;
             }
         }
@@ -1648,14 +1667,14 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //                    "Please, Enter the phone number firstly", Snackbar.LENGTH_SHORT).show();
 //            return;
 //        }
-        waitDialog = new SpotsDialog(this, "Verifying ...");
+        waitDialog = new SpotsDialog(this, "Sending the code ...");
         waitDialog.show();
 
         //FirebaseApp.initializeApp(this);
         mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             @Override
             public void onVerificationCompleted(PhoneAuthCredential credential) {
-                Toast.makeText(context, "onVerificationCompleted", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "onVerificationCompleted", Toast.LENGTH_SHORT).show();
 //               // This callback will be invoked in two situations:
                 // 1 - Instant verification. In some cases the phone number can be instantly
                 //     verified without needing to send or enter a verification code.
@@ -1675,7 +1694,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
             @Override
             public void onVerificationFailed(FirebaseException e) {
-                Toast.makeText(context, "onVerificationFailed", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "onVerificationFailed", Toast.LENGTH_SHORT).show();
                 // This callback is invoked in an invalid request for verification is made,
                 // for instance if the the phone number format is not valid.
                 //Log.w(TAG, "onVerificationFailed", e);
@@ -1719,9 +1738,15 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
                 Snackbar.make(rlMainView, "Enter code sent to u ",
                         Snackbar.LENGTH_LONG).show();
+                Sneaker.with(DriverSignInOutActivity.this)
+                        .setTitle("Success!!")
+                        .setMessage("Enter code sent to u ")
+                        .setDuration(Toast.LENGTH_LONG)
+                        .sneakSuccess();
                 // Save verification ID and resending token so we can use them later
                 mVerificationId = verificationId;
                 mResendToken = token;
+                waitDialog.dismiss();
                 // Update UI
                 //updateUI(STATE_CODE_SENT);
                 //Toast.makeText(HomeActivity.this, "onCodeSent", Toast.LENGTH_SHORT).show();
@@ -1775,7 +1800,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             if (s.toString().trim().length() == 1) {
                 etDigit2.requestFocus();
             } else {
-
+                //fabEnterDigits.hide();
             }
         }
     };
@@ -1795,7 +1820,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             if (s.toString().trim().length() == 1) {
                 etDigit3.requestFocus();
             } else {
-                etDigit2.requestFocus();
+                etDigit1.requestFocus();
             }
         }
     };
@@ -1813,7 +1838,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             if (s.toString().trim().length() == 1) {
                 etDigit4.requestFocus();
             } else {
-                etDigit3.requestFocus();
+                etDigit2.requestFocus();
             }
         }
     };
@@ -1831,71 +1856,326 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         @Override
         public void afterTextChanged(Editable s) {
             if (s.toString().trim().length() == 1) {
-                // etDigit3.requestFocus();
+                etDigit5.requestFocus();
+//                fabEnterDigits.setVisibility(View.VISIBLE);
+//                fabEnterDigits.show();
             } else {
                 etDigit3.requestFocus();
+                fabEnterDigits.hide();
+            }
+        }
+    };
+    TextWatcher tw5 = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s.toString().trim().length() == 1) {
+                etDigit6.requestFocus();
+                //fabEnterDigits.setVisibility(View.VISIBLE);
+                //fabEnterDigits.show();
+            } else {
+                etDigit4.requestFocus();
+                //fabEnterDigits.hide();
+            }
+        }
+    };
+    TextWatcher tw6 = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s.toString().trim().length() == 1) {
+                // etDigit3.requestFocus();
+//                fabEnterDigits.setVisibility(View.VISIBLE);
+//                fabEnterDigits.show();
+                tvErrorEnterDigits.setVisibility(View.GONE);
+            } else {
+                etDigit5.requestFocus();
+//                fabEnterDigits.hide();
             }
         }
     };
 
-    EditText etDigit1, etDigit2, etDigit3, etDigit4;
+    EditText etDigit1, etDigit2, etDigit3, etDigit4, etDigit5, etDigit6;
+    TextView tvTimeResendCode = null;
+    TextView tvErrorEnterDigits = null;
+    FloatingActionButton fabEnterDigits = null;
+    Button btnResndCode = null;
+    AlertDialog alertDialogEnterDigits = null;
+    Button btnAlertResendCode = null;
 
     private void showTheVerificationLayout() {
 
 
         View viewResendCode = LayoutInflater.from(context).inflate(R.layout.layout_enter_digits, null);
 
+
         etDigit1 = viewResendCode.findViewById(R.id.etDigit1);
-        etDigit1.addTextChangedListener(tw1);
-
         etDigit2 = viewResendCode.findViewById(R.id.etDigit2);
-        etDigit2.addTextChangedListener(tw2);
-
         etDigit3 = viewResendCode.findViewById(R.id.etDigit3);
-        etDigit3.addTextChangedListener(tw3);
-
         etDigit4 = viewResendCode.findViewById(R.id.etDigit4);
-        etDigit4.addTextChangedListener(tw4);
+        etDigit5 = viewResendCode.findViewById(R.id.etDigit5);
+        etDigit6 = viewResendCode.findViewById(R.id.etDigit6);
 
-        bottomDialogResendCode = new BottomDialog.Builder(DriverSignInOutActivity.this)
-                .setCustomView(viewResendCode)
-                .setCancelable(true)
-                .setTitle("Resend code ..")
-                //.setNegativeText("Exit")
-                // .setNegativeTextColorResource(R.color.colorAccent)
-                //.setIcon(R.drawable.share)
+        etDigit1.addTextChangedListener(tw1);
+        etDigit2.addTextChangedListener(tw2);
+        etDigit3.addTextChangedListener(tw3);
+        etDigit4.addTextChangedListener(tw4);
+        etDigit5.addTextChangedListener(tw5);
+        etDigit6.addTextChangedListener(tw6);
+
+        tvTimeResendCode = viewResendCode.findViewById(R.id.tvTimeResendCode);
+        tvErrorEnterDigits = viewResendCode.findViewById(R.id.tvErrorEnterDigits);
+        fabEnterDigits = viewResendCode.findViewById(R.id.fabEnterDigits);
+        btnResndCode = viewResendCode.findViewById(R.id.btnResendCode);
+        btnResndCode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btnResndCode.setVisibility(View.GONE);
+                resendVerificationCode(countryCode + etPhoneNumber.getText().toString(), mResendToken);
+            }
+        });
+        fabEnterDigits.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                waitDialog = new SpotsDialog(context, "Verifiying the code ...");
+                waitDialog.show();
+
+                String code = etDigit1.getText().toString() +
+                        etDigit2.getText().toString() +
+                        etDigit3.getText().toString() +
+                        etDigit4.getText().toString();
+                verifyPhoneNumberWithCode(mVerificationId, code);
+
+
+            }
+        });
+
+
+//        bottomDialogResendCode = new BottomDialog.Builder(DriverSignInOutActivity.this)
+//                .setCustomView(viewResendCode)
+//                .setCancelable(true)
+//                .setTitle("Resend code ..")
+        //.setNegativeText("Exit")
+        // .setNegativeTextColorResource(R.color.colorAccent)
+        //.setIcon(R.drawable.share)
 //                .onNegative(new BottomDialog.ButtonCallback() {
 //                    @Override
 //                    public void onClick(@NonNull BottomDialog dialog) {
 //                        dialog.dismiss();
 //                    }
 //                })
-                .build();
+//                .build();
+//        bottomDialogResendCode.show();
 
-        bottomDialogResendCode.show();
+        //starting the counter up timer
+        startCounter(1000);
+        //countUpTimer(1000, 1000);
+//        final CountUpTimer timer = new CountUpTimer(10000) {
+//            public void onTick(int second) {
+//                tvTimeResendCode.setText(second + "sec");
+//                if (second == 10) {
+//                    btnResndCode.setVisibility(View.VISIBLE);
+//                } else {
+//                    if (btnResndCode.getVisibility() != View.GONE) {
+//                        btnResndCode.setVisibility(View.GONE);
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//                super.onFinish();
+//            }
+//        };
+//        timer.start();
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setView(viewResendCode)
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setPositiveButton("Verify Code", null);
+        alertDialogEnterDigits = builder.create();
+        alertDialogEnterDigits.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                btnAlertResendCode = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                btnAlertResendCode.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        if (TextUtils.isEmpty(etDigit1.getText().toString()) ||
+                                TextUtils.isEmpty(etDigit2.getText().toString()) ||
+                                TextUtils.isEmpty(etDigit3.getText().toString()) ||
+                                TextUtils.isEmpty(etDigit4.getText().toString()) ||
+                                TextUtils.isEmpty(etDigit5.getText().toString()) ||
+                                TextUtils.isEmpty(etDigit6.getText().toString())) {
+                            tvErrorEnterDigits.setVisibility(View.VISIBLE);
+                            tvErrorEnterDigits.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
+                            //tvErrorEnterDigits.setText("");
+                            return;
+
+                        }
+
+
+                        waitDialog = new SpotsDialog(context, "Verifying code now ...");
+                        waitDialog.show();
+
+                        String code = etDigit1.getText().toString() +
+                                etDigit2.getText().toString() +
+                                etDigit3.getText().toString() +
+                                etDigit4.getText().toString() +
+                                etDigit5.getText().toString() +
+                                etDigit6.getText().toString();
+
+
+                        verifyPhoneNumberWithCode(mVerificationId, code);
+                    }
+                });
+            }
+        });
+
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        int width = (int) (displaymetrics.widthPixels * 0.9);
+        int height = (int) (displaymetrics.heightPixels * 0.7);
+
+        alertDialogEnterDigits.getWindow().setLayout(width, height);
+        alertDialogEnterDigits.setCancelable(false);
+        alertDialogEnterDigits.setCanceledOnTouchOutside(false);
+
+
+        if (!alertDialogEnterDigits.isShowing()) {
+            alertDialogEnterDigits.show();
+        }
 
     }
 
+    Handler handler;
+    Runnable runnable = null;
 
-    public void countUpTimer() {
-        Timer T = new Timer();
-        T.scheduleAtFixedRate(new TimerTask() {
-                                  @Override
-                                  public void run() {
-                                      runOnUiThread(new Runnable() {
-                                          @Override
-                                          public void run() {
-//                        myTextView.setText("count="+count);
-//                        count++;
-                                          }
-                                      });
-                                  }
-                              }, 1000//delay - delay in milliseconds before task is to be executed.
-                , 1000//  period - time in milliseconds between successive task executions.
+    private void startCounter(final int delaySec) {
+
+        handler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                count++;
+                tvTimeResendCode.setText(count + "sec");
+                if (count == 10) {
+                    btnResndCode.setVisibility(View.VISIBLE);
+                } else {
+                    if (btnResndCode.getVisibility() != View.GONE) {
+                        btnResndCode.setVisibility(View.GONE);
+
+                    }
+                }
+                handler.postDelayed(runnable, delaySec);// move this inside the run method
+            }
+        };
+        runnable.run(); // missing
+    }
+
+    public abstract class CountUpTimer extends CountDownTimer {
+        private static final long INTERVAL_MS = 1000;
+        private final long duration;
+
+        protected CountUpTimer(long durationMs) {
+            super(durationMs, INTERVAL_MS);
+            this.duration = durationMs;
+        }
+
+        public abstract void onTick(int second);
+
+        @Override
+        public void onTick(long msUntilFinished) {
+            int second = (int) ((duration - msUntilFinished) / 1000);
+            tvTimeResendCode.setText(count + "sec");
+            count++;
+            if (count == 10) {
+                btnResndCode.setVisibility(View.VISIBLE);
+            } else {
+                if (btnResndCode.getVisibility() != View.GONE) {
+                    btnResndCode.setVisibility(View.GONE);
+                }
+                count = 0;
+                countUpTimer(1000, 1000);
+            }
+            onTick(second);
+        }
+
+        @Override
+        public void onFinish() {
+            onTick(duration / 1000);
+        }
+    }
+
+    int count = 0;
+
+    public void countUpTimer(long delay, long period) {
+        final Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+                                      @Override
+                                      public void run() {
+                                          runOnUiThread(new Runnable() {
+                                              @Override
+                                              public void run() {
+                                                  tvTimeResendCode.setText(count + "sec");
+                                                  count++;
+                                                  if (count == 10) {
+                                                      timer.cancel();
+                                                      btnResndCode.setVisibility(View.VISIBLE);
+                                                  } else {
+                                                      if (btnResndCode.getVisibility() != View.GONE) {
+                                                          btnResndCode.setVisibility(View.GONE);
+                                                      }
+                                                      count = 0;
+                                                      countUpTimer(1000, 1000);
+                                                  }
+                                              }
+                                          });
+                                      }
+                                  }, delay//delay - delay in milliseconds before task is to be executed.
+                , period//  period - time in milliseconds between successive task executions.
         );
+
     }
 
+
+    public void showCustomSneakar() {
+        Sneaker.with(this)
+                .setTitle("Title", R.color.white) // Title and title color
+                .setMessage("This is the message.", R.color.white) // Message and message color
+                .setDuration(4000) // Time duration to show
+                .autoHide(true) // Auto hide Sneaker view
+                .setHeight(ViewGroup.LayoutParams.WRAP_CONTENT) // Height of the Sneaker layout
+                //.setIcon(R.drawable.ic_no_connection, R.color.white, false) // Icon, icon tint color and circular icon view
+                //.setTypeface(Typeface.createFromAsset(this.getAssets(), "font/" + fontName)); // Custom font for title and message
+                //.setOnSneakerClickListener(this) // Click listener for Sneaker
+                .sneak(R.color.colorAccent); // Sneak with background color
+    }
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
 
@@ -1903,7 +2183,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-//                        if (task.isSuccessful()) {
+                        if (task.isSuccessful()) {
 //                            //Log.d(TAG, "signInWithCredential:success");
 //
 //                            //adding a unique user id that contains his all own uploaded imaged
@@ -1922,15 +2202,20 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 ////                            editor.putString(KEY_IMAGES_UPLOADED, keyUploadedImages);
 //
 //
-//                            FirebaseUser user = task.getResult().getUser();
-//                            startActivity(new Intent(MainActivity.this, HomeActivity.class));
-//                            finish();
-//                        } else {
+                            FirebaseUser user = task.getResult().getUser();
+                            if (cbUserLogin.isChecked()) {
+                                startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, "User"));
+                            } else {
+                                startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, "Worker"));
+                            }
+                            finish();
+                        } else {
 //                            //Log.w(TAG, "signInWithCredential:failure", task.getException());
-//                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-//                                mVerificationField.setError("Invalid code.");
-//                            }
-//                        }
+                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                                waitDialog.dismiss();
+                                Snackbar.make(rlMainView, "Invalid Code !!!", Snackbar.LENGTH_SHORT).show();
+                            }
+                        }
 //                        textInputLayout.setErrorEnabled(false);
 //                        if (progressDialog != null) {
 //                            if (progressDialog.isShowing())
@@ -1961,7 +2246,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                                         PhoneAuthProvider.ForceResendingToken token) {
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 phoneNumber,        // Phone number to verify
-                60,                 // Timeout duration
+                20,                  // Timeout duration
                 TimeUnit.SECONDS,   // Unit of timeout
                 this,               // Activity (for callback binding)
                 mCallbacks,         // OnVerificationStateChangedCallbacks

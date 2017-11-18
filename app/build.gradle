@@ -46,6 +46,9 @@ android {
         exclude 'META-INF/LICENSE-FIREBASE.txt'
         exclude 'META-INF/NOTICE'
     }
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
 
 }
 
@@ -168,9 +171,8 @@ dependencies {
 
     //compile 'com.android.support:support-v4:+'
 
-
-    compile 'com.facebook.android:facebook-login:[4,5)'
-//    compile 'com.facebook.android:facebook-android-sdk:4.27.0'
+//    compile 'com.facebook.android:facebook-login:[4,5)'
+    compile 'com.facebook.android:facebook-android-sdk:4.27.0'
 
 
     compile 'com.googlecode.libphonenumber:libphonenumber:6.2'
