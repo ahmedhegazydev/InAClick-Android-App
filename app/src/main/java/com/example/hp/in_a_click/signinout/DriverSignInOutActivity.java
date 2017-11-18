@@ -17,7 +17,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -64,10 +66,14 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.PhoneAuthCredential;
@@ -92,6 +98,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.ButterKnife;
@@ -192,6 +200,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         }
     };
     boolean emailExist = false;
+    boolean errorType = false;
     private String strWorkerOrUser = "";
     private CallbackManager callbackManager;
     private String mVerificationId;
@@ -337,12 +346,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         init();
         initGoogleLoginButton();
 
-        if (checkAccountEmailExistInFirebase("wowrar1234@gmail.com")) {
-            Toast.makeText(context, "This email already exists ", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, "This email  not exist ", Toast.LENGTH_SHORT).show();
-        }
-
 
     }
 
@@ -364,7 +367,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
     }
 
     private boolean checkAccountEmailExistInFirebase(String email) {
-
         FirebaseAuth.getInstance().fetchProvidersForEmail(email).addOnCompleteListener(new OnCompleteListener<ProviderQueryResult>() {
             @Override
             public void onComplete(@NonNull Task<ProviderQueryResult> task) {
@@ -594,6 +596,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
         rlMainView = findViewById(R.id.rlMainView);
         firebaseAuth = FirebaseAuth.getInstance();
+        firebaseAuth.useAppLanguage();
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -908,6 +911,9 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                     view2.startAnimation(animScaleUp);
                     view2.setVisibility(View.VISIBLE);
 
+                    tvErrorLogin.setVisibility(View.GONE);
+                    tvErrorLogin.setText("");
+
 
                 } else {
                     tvLoginVia.setText("Login vial Email Address");
@@ -917,6 +923,8 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
                     view1.startAnimation(animScaleUp);
                     view1.setVisibility(View.VISIBLE);
+
+
                 }
             }
         });
@@ -1039,12 +1047,18 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         //assign the country code picker to the phone number edittext
         countryCodePicker = viewLogin.findViewById(R.id.countryCodePicker);
         countryCodePicker.registerCarrierNumberEditText(etPhoneNumber);
+        // countryCode = countryCodePicker.getSelectedCountryCode().toString();
+        countryCode = countryCodePicker.getSelectedCountryCodeWithPlus();
+
+//        Log.e("ccp20130074",  countryCodePicker.getSelectedCountryCode().toString());
+//        Log.e("ccp20130074", countryCodePicker.getSelectedCountryCodeWithPlus().toString());
+
 
         if (etPhoneNumber.getText().toString().trim().length() < 6) {
             //Snackbar.make(rlMainView, "Password  is too short", Snackbar.LENGTH_SHORT).show();
             etPhoneNumber.requestFocus();
             tvErrorLogin.setVisibility(View.VISIBLE);
-            tvErrorLogin.setText("Enter Phone Number ");
+            tvErrorLogin.setText("Enter Phone Number");
             return;
         }
 
@@ -1227,11 +1241,11 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         }
 
         //check if email already exists
-        if (checkIfEmailExistForSmrUser(etEmailReg.getText().toString())) {
-            tvErrorRegister.setVisibility(View.VISIBLE);
-            tvErrorRegister.setText("This email already exists \n You can login directly");
-            return;
-        }
+//        if (checkIfEmailExistForSmrUser(etEmailReg.getText().toString())) {
+//            tvErrorRegister.setVisibility(View.VISIBLE);
+//            tvErrorRegister.setText("This email already exists \n You can login directly");
+//            return;
+//        }
 
 
         tvErrorRegister.setVisibility(View.GONE);
@@ -1241,105 +1255,138 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         waitLogin.show();
 
         firebaseAuth.createUserWithEmailAndPassword(etEmailReg.getText().toString(), etPassReg.getText().toString())
-                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+//                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
-                    public void onSuccess(AuthResult authResult) {
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+//                    @Override
+//                    public void onSuccess(@NonNull AuthResult task) {
 
                         waitLogin.dismiss();
-                        alertDialogRegister.dismiss();
-
-                        showLogin();
-                        showMessage(context, "Please confirm you email");
-
-
-                        if (cbUserReg.isChecked()) {
-                            ///strWorkerOrUser = "Users";
-
-
-                            UserNormal userNormal = new UserNormal(
-                                    etEmailReg.getText().toString(),
-                                    etPassReg.getText().toString(),
-                                    etNameReg.getText().toString(),
-                                    etPhoneReg.getText().toString()
-
-                            );
-
-                            //using email to key, u can't as itis contain @ and .   characters
-                            //use id instead
-                            refUsers.child(firebaseAuth.getCurrentUser().getUid()
-                                    //inAClickUser.getUserEmail()
-                            ).setValue(userNormal).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    if (cbUserReg.isChecked())
-                                        Snackbar.make(rlMainView, "You are registered as a new USER(Trips)", Snackbar.LENGTH_SHORT).show();
-                                    else
-                                        Snackbar.make(rlMainView, "You are registered as a new WORKER(Driver)", Snackbar.LENGTH_SHORT).show();
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Snackbar.make(rlMainView, "Network Error, Failed in inserting data", Snackbar.LENGTH_SHORT).show();
-                                }
-                            });
-
-                        } else {
-                            if (strDriverOrHome == TAG_DRIVER) {
-                                UserDriver userDriver = new UserDriver(
-                                        etEmailReg.getText().toString(),
-                                        etPassReg.getText().toString(),
-                                        etNameReg.getText().toString(),
-                                        etPhoneReg.getText().toString()
-
-                                );
-                                refWorkers.child(strDriverOrHome).child(firebaseAuth.getCurrentUser().getUid()
-                                        //inAClickUser.getUserEmail()
-                                ).setValue(userDriver).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Snackbar.make(rlMainView, "You are registered as a new " + TAG_DRIVER, Snackbar.LENGTH_SHORT).show();
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Snackbar.make(rlMainView, "Network Error, Failed in  Registration", Snackbar.LENGTH_SHORT).show();
-                                    }
-                                });
-                            } else {
-                                UserHomeOwner userHomeOwner = new UserHomeOwner(
-                                        etEmailReg.getText().toString(),
-                                        etPassReg.getText().toString(),
-                                        etNameReg.getText().toString(),
-                                        etPhoneReg.getText().toString()
-
-                                );
-                                refWorkers.child(strDriverOrHome).child(firebaseAuth.getCurrentUser().getUid()
-                                        //inAClickUser.getUserEmail()
-                                ).setValue(userHomeOwner).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Snackbar.make(rlMainView, "You are registered as a new " + TAG_HOME_OWNER, Snackbar.LENGTH_SHORT).show();
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Snackbar.make(rlMainView, "Network Error, Failed in  Registration", Snackbar.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
-
-                        }
+                        checkIfEmailExist(task);
 
 
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Snackbar.make(rlMainView, "Network Error !!!", Snackbar.LENGTH_SHORT).show();
+                if (!errorType)
+                    Snackbar.make(rlMainView, "Network Error !!!", Snackbar.LENGTH_SHORT).show();
+                else
+                    return;
             }
         });
 
 
+    }
+
+    public void checkIfEmailExist(@NonNull Task<AuthResult> task) {
+        if (!task.isSuccessful()) {
+            try {
+                throw task.getException();
+            }
+            // if user enters wrong email.
+            catch (FirebaseAuthWeakPasswordException weakPassword) {
+                Log.d(TAG, "onComplete: weak_password");
+                return;
+            }
+            // if user enters wrong password.
+            catch (FirebaseAuthInvalidCredentialsException malformedEmail) {
+                Log.d(TAG, "onComplete: malformed_email");
+                return;
+
+            } catch (FirebaseAuthUserCollisionException existEmail) {
+                Log.d(TAG, "onComplete: exist_email");
+                tvErrorRegister.setVisibility(View.VISIBLE);
+                tvErrorRegister.setText("This email already exists\nYou can login directly\nOr register with a new one");
+                errorType = true;
+                return;
+            } catch (Exception e) {
+                Log.d(TAG, "onComplete: " + e.getMessage());
+                return;
+            }
+        } else {
+            proceedRegister();
+        }
+    }
+
+    private void proceedRegister() {
+
+        alertDialogRegister.dismiss();
+        showLogin();
+        //showMessage(context, "Please confirm you email");
+        if (cbUserReg.isChecked()) {
+            ///strWorkerOrUser = "Users";
+            UserNormal userNormal = new UserNormal(
+                    etEmailReg.getText().toString(),
+                    etPassReg.getText().toString(),
+                    etNameReg.getText().toString(),
+                    etPhoneReg.getText().toString()
+            );
+            //using email to key, u can't as itis contain @ and .   characters
+            //use id instead
+            refUsers.child(firebaseAuth.getCurrentUser().getUid()
+                    //inAClickUser.getUserEmail()
+            ).setValue(userNormal).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    if (cbUserReg.isChecked())
+                        Snackbar.make(rlMainView, "You are registered as a new USER(Trips)", Snackbar.LENGTH_SHORT).show();
+                    else
+                        Snackbar.make(rlMainView, "You are registered as a new WORKER(Driver)", Snackbar.LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Snackbar.make(rlMainView, "Network Error, Failed in inserting data", Snackbar.LENGTH_SHORT).show();
+                }
+            });
+
+        } else {
+            if (strDriverOrHome == TAG_DRIVER) {
+                UserDriver userDriver = new UserDriver(
+                        etEmailReg.getText().toString(),
+                        etPassReg.getText().toString(),
+                        etNameReg.getText().toString(),
+                        etPhoneReg.getText().toString()
+                );
+                refWorkers.child(strDriverOrHome).child(firebaseAuth.getCurrentUser().getUid()
+                        //inAClickUser.getUserEmail()
+                ).setValue(userDriver).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Snackbar.make(rlMainView, "You are registered as a new " + TAG_DRIVER, Snackbar.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Snackbar.make(rlMainView, "Network Error, Failed in  Registration", Snackbar.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                UserHomeOwner userHomeOwner = new UserHomeOwner(
+                        etEmailReg.getText().toString(),
+                        etPassReg.getText().toString(),
+                        etNameReg.getText().toString(),
+                        etPhoneReg.getText().toString()
+
+                );
+                refWorkers.child(strDriverOrHome).child(firebaseAuth.getCurrentUser().getUid()
+                        //inAClickUser.getUserEmail()
+                ).setValue(userHomeOwner).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Snackbar.make(rlMainView, "You are registered as a new " + TAG_HOME_OWNER, Snackbar.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Snackbar.make(rlMainView, "Network Error, Failed in  Registration", Snackbar.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }
     }
 
     public boolean checkIfEmailExistForSmrUser(String insertedEmailWhileReg) {
@@ -1603,11 +1650,12 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //        }
         waitDialog = new SpotsDialog(this, "Verifying ...");
         waitDialog.show();
+
         //FirebaseApp.initializeApp(this);
         mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             @Override
             public void onVerificationCompleted(PhoneAuthCredential credential) {
-                // Toast.makeText(MainActivity.this, "onVerificationCompleted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "onVerificationCompleted", Toast.LENGTH_SHORT).show();
 //               // This callback will be invoked in two situations:
                 // 1 - Instant verification. In some cases the phone number can be instantly
                 //     verified without needing to send or enter a verification code.
@@ -1627,22 +1675,23 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
             @Override
             public void onVerificationFailed(FirebaseException e) {
-                // Toast.makeText(MainActivity.this, "onVerificationFailed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "onVerificationFailed", Toast.LENGTH_SHORT).show();
                 // This callback is invoked in an invalid request for verification is made,
                 // for instance if the the phone number format is not valid.
                 //Log.w(TAG, "onVerificationFailed", e);
                 mVerificationInProgress = false;
-//
-//                if (e instanceof FirebaseAuthInvalidCredentialsException) {
-//                    // Invalid request
-//                    textInputLayout.setErrorEnabled(true);
-//                    textInputLayout.setError("Invalid phone number.");
-//                    // [END_EXCLUDE]
-//                } else if (e instanceof FirebaseTooManyRequestsException) {
-//                    // The SMS quota for the project has been exceeded
-//                    Snackbar.make(findViewById(android.R.id.content), "Quota exceeded.",
-//                            Snackbar.LENGTH_SHORT).show();
-//                }
+
+                if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                    // Invalid request
+
+                    Snackbar.make(rlMainView, " Invalid phone number.",
+                            Snackbar.LENGTH_SHORT).show();
+                    // [END_EXCLUDE]
+                } else if (e instanceof FirebaseTooManyRequestsException) {
+                    // The SMS quota for the project has been exceeded
+                    Snackbar.make(rlMainView, "Quota exceeded.",
+                            Snackbar.LENGTH_SHORT).show();
+                }
 //
 //                // Show a message and update the UI
 //                //updateUI(STATE_VERIFY_FAILED);
@@ -1668,6 +1717,8 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 // by combining the code with a verification ID.
                 //Log.d(TAG, "onCodeSent:" + verificationId);
 
+                Snackbar.make(rlMainView, "Enter code sent to u ",
+                        Snackbar.LENGTH_LONG).show();
                 // Save verification ID and resending token so we can use them later
                 mVerificationId = verificationId;
                 mResendToken = token;
@@ -1675,7 +1726,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 //updateUI(STATE_CODE_SENT);
                 //Toast.makeText(HomeActivity.this, "onCodeSent", Toast.LENGTH_SHORT).show();
 
-//                showTheVerificationLayout();
+                showTheVerificationLayout();
 //                if (progressDialog != null) {
 //                    if (progressDialog.isShowing())
 //                        progressDialog.dismiss();
@@ -1698,7 +1749,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         };
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 phoneNumber,        // Phone number to verify
-                60,                 // Timeout duration
+                20,                 // Timeout duration
                 TimeUnit.SECONDS,   // Unit of timeout
                 this,               // Activity (for callback binding)
                 mCallbacks);        // OnVerificationStateChangedCallbacks
@@ -1706,6 +1757,145 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         mVerificationInProgress = true;
 
     }
+
+    BottomDialog bottomDialogResendCode = null;
+    TextWatcher tw1 = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s.toString().trim().length() == 1) {
+                etDigit2.requestFocus();
+            } else {
+
+            }
+        }
+    };
+    TextWatcher tw2 = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s.toString().trim().length() == 1) {
+                etDigit3.requestFocus();
+            } else {
+                etDigit2.requestFocus();
+            }
+        }
+    };
+    TextWatcher tw3 = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s.toString().trim().length() == 1) {
+                etDigit4.requestFocus();
+            } else {
+                etDigit3.requestFocus();
+            }
+        }
+    };
+    TextWatcher tw4 = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s.toString().trim().length() == 1) {
+                // etDigit3.requestFocus();
+            } else {
+                etDigit3.requestFocus();
+            }
+        }
+    };
+
+    EditText etDigit1, etDigit2, etDigit3, etDigit4;
+
+    private void showTheVerificationLayout() {
+
+
+        View viewResendCode = LayoutInflater.from(context).inflate(R.layout.layout_enter_digits, null);
+
+        etDigit1 = viewResendCode.findViewById(R.id.etDigit1);
+        etDigit1.addTextChangedListener(tw1);
+
+        etDigit2 = viewResendCode.findViewById(R.id.etDigit2);
+        etDigit2.addTextChangedListener(tw2);
+
+        etDigit3 = viewResendCode.findViewById(R.id.etDigit3);
+        etDigit3.addTextChangedListener(tw3);
+
+        etDigit4 = viewResendCode.findViewById(R.id.etDigit4);
+        etDigit4.addTextChangedListener(tw4);
+
+        bottomDialogResendCode = new BottomDialog.Builder(DriverSignInOutActivity.this)
+                .setCustomView(viewResendCode)
+                .setCancelable(true)
+                .setTitle("Resend code ..")
+                //.setNegativeText("Exit")
+                // .setNegativeTextColorResource(R.color.colorAccent)
+                //.setIcon(R.drawable.share)
+//                .onNegative(new BottomDialog.ButtonCallback() {
+//                    @Override
+//                    public void onClick(@NonNull BottomDialog dialog) {
+//                        dialog.dismiss();
+//                    }
+//                })
+                .build();
+
+        bottomDialogResendCode.show();
+
+
+    }
+
+
+    public void countUpTimer() {
+        Timer T = new Timer();
+        T.scheduleAtFixedRate(new TimerTask() {
+                                  @Override
+                                  public void run() {
+                                      runOnUiThread(new Runnable() {
+                                          @Override
+                                          public void run() {
+//                        myTextView.setText("count="+count);
+//                        count++;
+                                          }
+                                      });
+                                  }
+                              }, 1000//delay - delay in milliseconds before task is to be executed.
+                , 1000//  period - time in milliseconds between successive task executions.
+        );
+    }
+
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
 

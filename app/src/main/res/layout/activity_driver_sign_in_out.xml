@@ -7,14 +7,30 @@
     android:layout_height="match_parent"
     tools:context="com.example.hp.in_a_click.signinout.DriverSignInOutActivity">
 
-    <ImageView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:src="@drawable/uber_deiver"
+        android:orientation="vertical"
+        android:weightSum="100">
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="50"
+            android:scaleType="centerCrop"
+            android:src="@drawable/uber_deiver"
 
-        />
+            />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="50"
+            android:scaleType="centerCrop"
+            android:src="@drawable/home_owner"
+
+            />
+    </LinearLayout>
 
 
     <LinearLayout

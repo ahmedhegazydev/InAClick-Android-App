@@ -37,6 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="false"
+                android:layout_margin="2dp"
                 android:gravity="center" />
         </LinearLayout>
 
@@ -134,7 +135,9 @@
             android:layout_marginRight="2dp"
             android:background="@drawable/indicator"
             android:gravity="left"
-            android:padding="15dp"
+            android:paddingLeft="10dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             android:text="Login  as "
             android:textColor="@android:color/darker_gray"
             android:textSize="20sp"
