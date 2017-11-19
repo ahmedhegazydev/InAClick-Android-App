@@ -186,6 +186,17 @@ dependencies {
     ///compile 'com.github.lzyzsd:circleprogress:1.2.1'
     compile 'com.github.jakob-grabner:Circle-Progress-View:v1.3'
 
+
+    compile 'com.bakerj:infinite-cards:1.0.3'
+    compile 'com.github.moondroid.coverflow:library:1.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.github.devlight:infinitecycleviewpager:1.0.2'
+    compile 'com.afollestad.material-dialogs:commons:0.9.5.0'
+
+// placepicker
+    // compile 'com.github.stephenbaidu:placepicker:1.1'
+
+
 }
 apply plugin: 'com.google.gms.google-services'
 configurations.all {

@@ -1,6 +1,7 @@
 package com.example.hp.in_a_click.signinout;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,6 +29,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -37,10 +39,12 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.hp.in_a_click.R;
 import com.example.hp.in_a_click.dialogs.FragmentModalBottomSheet;
 import com.example.hp.in_a_click.model.UserDriver;
@@ -64,9 +68,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -351,9 +360,24 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         ButterKnife.bind(this);
         init();
         initGoogleLoginButton();
+        initPlacPicker();
 
 
     }
+
+    private void initPlacPicker() {
+
+        gacPlacePicker = new GoogleApiClient
+                .Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .enableAutoManage(this, this)
+                .build();
+
+
+    }
+
+    private int PLACE_PICKER_REQUEST = 13;
 
     private boolean checkIfEmailExistForSmrUserTest(String insertedEmailWhileReg) {
         Query query = refUsers.orderByChild("userEmail").equalTo(insertedEmailWhileReg);
@@ -449,8 +473,10 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // Pass the activity result back to the Facebook SDK
-        callbackManager.onActivityResult(requestCode, resultCode, data);
+        if (callbackManager != null) {
+            // Pass the activity result back to the Facebook SDK
+            callbackManager.onActivityResult(requestCode, resultCode, data);
+        }
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
@@ -465,6 +491,30 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //            handleSignInResult(googleSignInResult);
 //
 //        }
+        if (requestCode == PLACE_PICKER_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlacePicker.getPlace(data, this);
+                StringBuilder stBuilder = new StringBuilder();
+                String placename = String.format("%s", place.getName());
+                String latitude = String.valueOf(place.getLatLng().latitude);
+                String longitude = String.valueOf(place.getLatLng().longitude);
+                String address = String.format("%s", place.getAddress());
+                stBuilder.append("Name: ");
+                stBuilder.append(placename);
+                stBuilder.append("\n");
+                stBuilder.append("Latitude: ");
+                stBuilder.append(latitude);
+                stBuilder.append("\n");
+                stBuilder.append("Logitude: ");
+                stBuilder.append(longitude);
+                stBuilder.append("\n");
+                stBuilder.append("Address: ");
+                stBuilder.append(address);
+
+                // etCity.setText(stBuilder.toString());
+                etCity.setText(place.getAddress().toString());
+            }
+        }
     }
 
     private void signInWithGooglePlus() {
@@ -685,7 +735,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //                                "Auth Token: " + loginResult.getAccessToken().getToken());
                         // Toast.makeText(context, "LoginManager onSuccess", Toast.LENGTH_LONG).show();
 
-                        handleFacebookAccessToken(loginResult.getAccessToken());
+                        //handleFacebookAccessToken(loginResult.getAccessToken());
                         getDataFromFaceBookLogin(loginResult);
 
                     }
@@ -891,6 +941,8 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    //showWorkerOptMenu(cbWorkerLogin);
+                    showWorkerOptMenu();
                     cbUserLogin.setChecked(false);
                 } else {
                     cbUserLogin.setChecked(true);
@@ -975,6 +1027,40 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
     }
 
+    String selectedRoleWorkerLogin = "";
+
+    private void showWorkerOptMenu() {
+
+        new MaterialDialog.Builder(this)
+                //.title(R.string.title)
+                .items(R.array.options)
+                .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
+                    @Override
+                    public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+                        selectedRoleWorkerLogin = (String) text;
+                        return true;
+                    }
+                })
+                .positiveText("Select")
+                .show();
+
+
+    }
+
+
+    public void showWorkerOptMenu(View button) {
+        PopupMenu popup = new PopupMenu(this, button);
+        popup.getMenuInflater().inflate(R.menu.menu_worker_options, popup.getMenu());
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                return true;
+            }
+        });
+
+        popup.show();
+    }
+
     public void loginUserWithEmail() {
         final EditText etEmail = viewLogin.findViewById(R.id.etEmail);
         final EditText etPass = viewLogin.findViewById(R.id.etPassword);
@@ -985,6 +1071,14 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             etEmail.requestFocus();
             tvErrorLogin.setVisibility(View.VISIBLE);
             tvErrorLogin.setText("Enter Email");
+            tvErrorLogin.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
+            return;
+        }
+        if (!isValidEmail(etEmail.getText().toString())) {
+            //Snackbar.make(rlMainView, "Enter Email", Snackbar.LENGTH_SHORT).show();
+            etEmail.requestFocus();
+            tvErrorLogin.setVisibility(View.VISIBLE);
+            tvErrorLogin.setText("Enter Valid Email");
             tvErrorLogin.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
             return;
         }
@@ -1012,11 +1106,13 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         waitLogin.show();
 
 
-        firebaseAuth.signInWithEmailAndPassword(etEmail.getText().toString(), etPass.getText().toString()).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-            @Override
-            public void onSuccess(AuthResult authResult) {
-            }
-        })
+        firebaseAuth.signInWithEmailAndPassword(etEmail.getText().toString(), etPass.getText().toString())
+                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                    @Override
+                    public void onSuccess(AuthResult authResult) {
+
+                    }
+                })
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -1027,6 +1123,10 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                         if (!task.isSuccessful()) {
                             //Log.w("TAG", "signInWithEmail:failed", task.getException());
                             showMessage(context, "Email or Password is invalid\nPlease check them\nThen try again");
+                            Sneaker.with(DriverSignInOutActivity.this)
+                                    .setTitle("Error - Email or Password is invalid")
+                                    .setMessage("Check internet connection !!!")
+                                    .sneakError();
                         } else {
                             checkIfEmailVerified();
                         }
@@ -1036,6 +1136,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
                     }
                 })
+
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
@@ -1043,14 +1144,19 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                             waitLogin.dismiss();
                         }
                         // btnSIgnIn.setEnabled(true);
-                        Snackbar.make(rlMainView, "Login Failed", Snackbar.LENGTH_SHORT).show();
-                        showMessage(context, "Email or Password is invalid\nPlease check them\nThen try again");
+                        //Snackbar.make(rlMainView, "Login Failed", Snackbar.LENGTH_SHORT).show();
+                        //showMessage(context, "Email or Password is invalid\nPlease check them\nThen try again");
+                        Sneaker.with(DriverSignInOutActivity.this)
+                                .setTitle("Error!!")
+                                .setMessage("Check internet connection !!!")
+                                .sneakError();
                     }
                 });
 
     }
 
     EditText etPhoneNumber = null;
+
     public void loginUserWithPhoneNumber() {
         etPhoneNumber = viewLogin.findViewById(R.id.etPhoneNumber);
 
@@ -1094,6 +1200,10 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         }
     }
 
+    CountryCodePicker ccpRegister = null;
+
+    EditText etCity = null;
+
     private void showRegister() {
 
 
@@ -1104,7 +1214,22 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         etPassReg = viewRegister.findViewById(R.id.etPassword);
         etNameReg = viewRegister.findViewById(R.id.etName);
         etPhoneReg = viewRegister.findViewById(R.id.etPhone);
-
+        etCity = viewRegister.findViewById(R.id.etCity);
+        etCity.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+                    try {
+                        startActivityForResult(builder.build(DriverSignInOutActivity.this), PLACE_PICKER_REQUEST);
+                    } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        ccpRegister = viewRegister.findViewById(R.id.ccpRegister);
+        ccpRegister.registerCarrierNumberEditText(etPhoneReg);
 
         cbUserReg = viewRegister.findViewById(R.id.cbUser);
         cbWorkerReg = viewRegister.findViewById(R.id.cbWorker);
@@ -1230,6 +1355,15 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             etNameReg.requestFocus();
             return;
         }
+        if (TextUtils.isEmpty(etCity.getText().toString())) {
+//            Snackbar.make(rlMainView, "Enter Name", Snackbar.LENGTH_SHORT).show();
+//            etName.setError("Enter Name");
+            tvErrorRegister.setVisibility(View.VISIBLE);
+            tvErrorRegister.setText("Enter City");
+            tvErrorRegister.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
+            etCity.requestFocus();
+            return;
+        }
         if (TextUtils.isEmpty(etPhoneReg.getText().toString())) {
 //            Snackbar.make(rlMainView, "Enter Phone Number", Snackbar.LENGTH_SHORT).show();
 //            etPhone.setError("Enter Phone Number");
@@ -1282,20 +1416,27 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //                    @Override
 //                    public void onSuccess(@NonNull AuthResult task) {
 
+
                         waitLogin.dismiss();
                         checkIfEmailExist(task);
 
 
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                if (!errorType)
-                    Snackbar.make(rlMainView, "Network Error !!!", Snackbar.LENGTH_SHORT).show();
-                else
-                    return;
-            }
-        });
+                })
+
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (!errorType) {
+                            //Snackbar.make(rlMainView, "Network Error !!!", Snackbar.LENGTH_SHORT).show();
+                            Sneaker.with(DriverSignInOutActivity.this)
+                                    .setTitle("Network Error !! - Check internet connection ")
+                                    .setMessage("Check internet connection ")
+                                    .sneakError();
+                        } else
+                            return;
+                    }
+                });
 
 
     }
@@ -1316,9 +1457,10 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 return;
 
             } catch (FirebaseAuthUserCollisionException existEmail) {
-                Log.d(TAG, "onComplete: exist_email");
+                //Log.d(TAG, "onComplete: exist_email");
                 tvErrorRegister.setVisibility(View.VISIBLE);
                 tvErrorRegister.setText("This email already exists\nYou can login directly\nOr register with a new one");
+                tvErrorRegister.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
                 errorType = true;
                 return;
             } catch (Exception e) {
@@ -1341,7 +1483,8 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                     etEmailReg.getText().toString(),
                     etPassReg.getText().toString(),
                     etNameReg.getText().toString(),
-                    etPhoneReg.getText().toString()
+                    etCity.getText().toString(),
+                    ccpRegister.getSelectedCountryCodeWithPlus() + etPhoneReg.getText().toString()
             );
             //using email to key, u can't as itis contain @ and .   characters
             //use id instead
@@ -1350,15 +1493,20 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             ).setValue(userNormal).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    if (cbUserReg.isChecked())
-                        Snackbar.make(rlMainView, "You are registered as a new USER(Trips)", Snackbar.LENGTH_SHORT).show();
-                    else
-                        Snackbar.make(rlMainView, "You are registered as a new WORKER(Driver)", Snackbar.LENGTH_SHORT).show();
+                    Sneaker.with(DriverSignInOutActivity.this)
+                            .setTitle("Success - You are registered as a new User(Trips/Renting homes)")
+                            .setMessage(" You are registered as a new User(Trips/Renting homes)")
+                            .sneakSuccess();
+
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Snackbar.make(rlMainView, "Network Error, Failed in inserting data", Snackbar.LENGTH_SHORT).show();
+                    //Snackbar.make(rlMainView, "Network Error, Failed in inserting data", Snackbar.LENGTH_SHORT).show();
+                    Sneaker.with(DriverSignInOutActivity.this)
+                            .setTitle("Network Error !! - Check internet connection ")
+                            .setMessage("Check internet connection ")
+                            .sneakError();
                 }
             });
 
@@ -1368,19 +1516,29 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                         etEmailReg.getText().toString(),
                         etPassReg.getText().toString(),
                         etNameReg.getText().toString(),
-                        etPhoneReg.getText().toString()
+                        etCity.getText().toString(),
+                        ccpRegister.getSelectedCountryCodeWithPlus() + etPhoneReg.getText().toString(),
+                        false
                 );
                 refWorkers.child(strDriverOrHome).child(firebaseAuth.getCurrentUser().getUid()
                         //inAClickUser.getUserEmail()
                 ).setValue(userDriver).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Snackbar.make(rlMainView, "You are registered as a new " + TAG_DRIVER, Snackbar.LENGTH_SHORT).show();
+                        //Snackbar.make(rlMainView, "You are registered as a new " + TAG_DRIVER, Snackbar.LENGTH_SHORT).show();
+                        Sneaker.with(DriverSignInOutActivity.this)
+                                .setTitle("Success - You are registered as a new Worker(Driver)")
+                                .setMessage(" You are registered as a  new Worker(Driver)")
+                                .sneakSuccess();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Snackbar.make(rlMainView, "Network Error, Failed in  Registration", Snackbar.LENGTH_SHORT).show();
+                        //Snackbar.make(rlMainView, "Network Error, Failed in  Registration", Snackbar.LENGTH_SHORT).show();
+                        Sneaker.with(DriverSignInOutActivity.this)
+                                .setTitle("Network Error !! - Check internet connection ")
+                                .setMessage("Check internet connection ")
+                                .sneakError();
                     }
                 });
             } else {
@@ -1388,7 +1546,9 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                         etEmailReg.getText().toString(),
                         etPassReg.getText().toString(),
                         etNameReg.getText().toString(),
-                        etPhoneReg.getText().toString()
+                        etCity.getText().toString(),
+                        ccpRegister.getSelectedCountryCodeWithPlus() + etPhoneReg.getText().toString(),
+                        false
 
                 );
                 refWorkers.child(strDriverOrHome).child(firebaseAuth.getCurrentUser().getUid()
@@ -1396,12 +1556,21 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 ).setValue(userHomeOwner).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Snackbar.make(rlMainView, "You are registered as a new " + TAG_HOME_OWNER, Snackbar.LENGTH_SHORT).show();
+                        //Snackbar.make(rlMainView, "You are registered as a new " + TAG_HOME_OWNER, Snackbar.LENGTH_SHORT).show();
+                        Sneaker.with(DriverSignInOutActivity.this)
+                                .setTitle("Success - You are registered as a new Worker(Home owner)")
+                                .setMessage(" You are registered as a new Worker(Home owner)")
+                                .sneakSuccess();
+
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Snackbar.make(rlMainView, "Network Error, Failed in  Registration", Snackbar.LENGTH_SHORT).show();
+                        //Snackbar.make(rlMainView, "Network Error, Failed in  Registration", Snackbar.LENGTH_SHORT).show();
+                        Sneaker.with(DriverSignInOutActivity.this)
+                                .setTitle("Network Error !! - Check internet connection ")
+                                .setMessage("Check internet connection ")
+                                .sneakError();
                     }
                 });
             }
@@ -1436,6 +1605,9 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         });
         return emailExist;
     }
+
+    GoogleApiClient gacPlacePicker = null;
+
 
     private void hideRole() {
 
@@ -1586,6 +1758,13 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
     private void sendVerificationEmail() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+//        if (user == null) {
+//            Sneaker.with(DriverSignInOutActivity.this)
+//                    .setTitle("Please, Register then login")
+//                    .setMessage("Email Not Sent")
+//                    .sneakWarning();
+//            return;
+//        }
         user.sendEmailVerification()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -1596,23 +1775,25 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                             FirebaseAuth.getInstance().signOut();
                             //start login view
                             //.....
-//                            Sneaker.with(getParent())
-//                                    .setTitle("Success!!")
-//                                    .setMessage("The email verification sent")
-//                                    .sneakSuccess();
-                            showMessage(context, "The email verification sent");
+                            Sneaker.with(DriverSignInOutActivity.this)
+                                    .setTitle("Success - The email verification sent")
+                                    .setMessage("The email verification sent")
+                                    .sneakSuccess();
+                            //showMessage(context, "The email verification sent");
 
                         } else {
                             // email not sent, so display message and restart the activity or do whatever you wish to do
-//                            Sneaker.with(getParent())
-//                                    .setTitle("Error!!")
-//                                    .setMessage("Email Not Sent")
-//                                    .sneakError();
-                            showMessage(context, "Email Not Sent");
+                            Sneaker.with(DriverSignInOutActivity.this)
+                                    .setTitle("Error!! - Email Not Sent")
+                                    .setMessage("Email Not Sent")
+                                    .sneakError();
+                            //showMessage(context, "Email Not Sent");
 
                         }
                     }
                 });
+
+
     }
 
     private void checkIfEmailVerified() {
@@ -1634,12 +1815,16 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         } else {
             // email is not verified, so just prompt the message to the user and restart this activity.
             // NOTE: don't forget to log out the user.
-            FirebaseAuth.getInstance().signOut();
+
             //restart this activity
-            showSnackbar("Please check email verification\nVerify your email\nThen login");
+            //showSnackbar("Please check email verification\nVerify your email\nThen login");
             tvErrorLogin.setVisibility(View.VISIBLE);
             tvErrorLogin.setText("Please check email verification");
+            tvErrorLogin.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
+            sendVerificationEmail();
 
+
+            FirebaseAuth.getInstance().signOut();
         }
     }
 
@@ -1667,7 +1852,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //                    "Please, Enter the phone number firstly", Snackbar.LENGTH_SHORT).show();
 //            return;
 //        }
-        waitDialog = new SpotsDialog(this, "Sending the code ...");
+        waitDialog = new SpotsDialog(this, "Sending your SMS code ...");
         waitDialog.show();
 
         //FirebaseApp.initializeApp(this);
@@ -1710,6 +1895,12 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                     // The SMS quota for the project has been exceeded
                     Snackbar.make(rlMainView, "Quota exceeded.",
                             Snackbar.LENGTH_SHORT).show();
+                } else {
+                    Sneaker.with(DriverSignInOutActivity.this)
+                            .setTitle("Error!!")
+                            .setMessage("Check Internet Connection !!!")
+                            .sneakError();
+                    waitDialog.dismiss();
                 }
 //
 //                // Show a message and update the UI
@@ -1736,13 +1927,14 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 // by combining the code with a verification ID.
                 //Log.d(TAG, "onCodeSent:" + verificationId);
 
-                Snackbar.make(rlMainView, "Enter code sent to u ",
-                        Snackbar.LENGTH_LONG).show();
+//                Snackbar.make(rlMainView, "Enter code sent to u ",
+//                        Snackbar.LENGTH_LONG).show();
                 Sneaker.with(DriverSignInOutActivity.this)
                         .setTitle("Success!!")
                         .setMessage("Enter code sent to u ")
-                        .setDuration(Toast.LENGTH_LONG)
                         .sneakSuccess();
+
+
                 // Save verification ID and resending token so we can use them later
                 mVerificationId = verificationId;
                 mResendToken = token;
@@ -1752,17 +1944,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 //Toast.makeText(HomeActivity.this, "onCodeSent", Toast.LENGTH_SHORT).show();
 
                 showTheVerificationLayout();
-//                if (progressDialog != null) {
-//                    if (progressDialog.isShowing())
-//                        progressDialog.dismiss();
-//                }
-//                if (pdVerification != null) {
-//                    if (pdVerification.isShowing())
-//                        pdVerification.dismiss();
-//                }
-//                if (barResendCode != null) {
-//                    barResendCode.setVisibility(ProgressBar.GONE);
-//                }
 
             }
 
@@ -1959,10 +2140,11 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 waitDialog = new SpotsDialog(context, "Verifiying the code ...");
                 waitDialog.show();
 
-                String code = etDigit1.getText().toString() +
-                        etDigit2.getText().toString() +
-                        etDigit3.getText().toString() +
-                        etDigit4.getText().toString();
+                String code =
+                        etDigit1.getText().toString() +
+                                etDigit2.getText().toString() +
+                                etDigit3.getText().toString() +
+                                etDigit4.getText().toString();
                 verifyPhoneNumberWithCode(mVerificationId, code);
 
 
@@ -1987,7 +2169,13 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //        bottomDialogResendCode.show();
 
         //starting the counter up timer
+        if (stopHandler == false) {
+            stopHandler = true;
+            count = 0;
+
+        }
         startCounter(1000);
+
         //countUpTimer(1000, 1000);
 //        final CountUpTimer timer = new CountUpTimer(10000) {
 //            public void onTick(int second) {
@@ -2026,12 +2214,15 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                     @Override
                     public void onClick(View view) {
 
-                        if (TextUtils.isEmpty(etDigit1.getText().toString()) ||
-                                TextUtils.isEmpty(etDigit2.getText().toString()) ||
-                                TextUtils.isEmpty(etDigit3.getText().toString()) ||
-                                TextUtils.isEmpty(etDigit4.getText().toString()) ||
-                                TextUtils.isEmpty(etDigit5.getText().toString()) ||
-                                TextUtils.isEmpty(etDigit6.getText().toString())) {
+                        if (
+                                TextUtils.isEmpty(etDigit1.getText().toString()) ||
+                                        TextUtils.isEmpty(etDigit2.getText().toString()) ||
+                                        TextUtils.isEmpty(etDigit3.getText().toString()) ||
+                                        TextUtils.isEmpty(etDigit4.getText().toString()) ||
+                                        TextUtils.isEmpty(etDigit5.getText().toString()) ||
+                                        TextUtils.isEmpty(etDigit6.getText().toString())
+
+                                ) {
                             tvErrorEnterDigits.setVisibility(View.VISIBLE);
                             tvErrorEnterDigits.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
                             //tvErrorEnterDigits.setText("");
@@ -2075,6 +2266,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
     Handler handler;
     Runnable runnable = null;
+    boolean stopHandler = true;
 
     private void startCounter(final int delaySec) {
 
@@ -2082,17 +2274,22 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         runnable = new Runnable() {
             @Override
             public void run() {
-                count++;
-                tvTimeResendCode.setText(count + "sec");
-                if (count == 10) {
-                    btnResndCode.setVisibility(View.VISIBLE);
-                } else {
-                    if (btnResndCode.getVisibility() != View.GONE) {
-                        btnResndCode.setVisibility(View.GONE);
+                if (stopHandler) {
+                    count++;
+                    tvTimeResendCode.setText(count + " sec");
+                    if (count == 20 && stopHandler) {
+                        btnResndCode.setVisibility(View.VISIBLE);
+                        handler.removeCallbacks(runnable);
+                        stopHandler = false;
+                    } else {
+                        if (btnResndCode.getVisibility() != View.GONE) {
+                            btnResndCode.setVisibility(View.GONE);
 
+                        }
                     }
+                    handler.postDelayed(runnable, delaySec);// move this inside the run method
                 }
-                handler.postDelayed(runnable, delaySec);// move this inside the run method
+
             }
         };
         runnable.run(); // missing
@@ -2162,7 +2359,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         );
 
     }
-
 
     public void showCustomSneakar() {
         Sneaker.with(this)
@@ -2493,6 +2689,5 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
 
     }
-
 
 }

@@ -22,6 +22,7 @@
     <string name="google_direction_api">AIzaSyAPvNmlpIwuzinDyox39qIgSmfkAh2Mg54</string>
 
     <string name="fb_app_id20130074">1998556493759923</string>
+    <string name="place_picker_api_key">AIzaSyAPvNmlpIwuzinDyox39qIgSmfkAh2Mg54</string>
 
 
 </resources>

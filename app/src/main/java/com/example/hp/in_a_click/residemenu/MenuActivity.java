@@ -91,17 +91,24 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
             resideMenu.addMenuItem(itemUserHome, ResideMenu.DIRECTION_LEFT);
             resideMenu.addMenuItem(itemUserTrip, ResideMenu.DIRECTION_LEFT);
 
-        } else {
+        }
+
+
+        if (getIntent().getStringExtra(DriverSignInOutActivity.WHO).equalsIgnoreCase("Driver")) {
             itemWorkerDriver = new ResideMenuItem(this, R.drawable.icon_home, "Driver");
-            itemWorkerHome = new ResideMenuItem(this, R.drawable.icon_calendar, "Sell Home");
-
-
-            itemWorkerHome.setOnClickListener(this);
             itemWorkerDriver.setOnClickListener(this);
-
             resideMenu.addMenuItem(itemWorkerDriver, ResideMenu.DIRECTION_LEFT);
+        }
+
+        if (getIntent().getStringExtra(DriverSignInOutActivity.WHO).equalsIgnoreCase("HomeOwner")) {
+            itemWorkerHome = new ResideMenuItem(this, R.drawable.icon_calendar, "Sell Home");
+            itemWorkerHome.setOnClickListener(this);
             resideMenu.addMenuItem(itemWorkerHome, ResideMenu.DIRECTION_LEFT);
         }
+
+
+
+
         resideMenu.addMenuItem(itemSettings, ResideMenu.DIRECTION_LEFT);
         resideMenu.addMenuItem(itemAboutUs, ResideMenu.DIRECTION_LEFT);
         resideMenu.addMenuItem(itemContactUs, ResideMenu.DIRECTION_LEFT);

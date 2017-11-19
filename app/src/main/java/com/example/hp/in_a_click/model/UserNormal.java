@@ -5,23 +5,37 @@ package com.example.hp.in_a_click.model;
  */
 
 public class UserNormal {
+    public String getCity() {
+        return city;
+    }
 
+    public void setCity(String city) {
+        this.city = city;
+    }
 
     String userEmail;
     String userPass;
     String userName;
     String userPhone;
-
-
-    public UserNormal() {
-    }
+    String city = "";
 
     public UserNormal(String userEmail, String userPass, String userName, String userPhone) {
-
         this.userEmail = userEmail;
         this.userPass = userPass;
         this.userName = userName;
         this.userPhone = userPhone;
+    }
+
+    public UserNormal() {
+    }
+
+
+    public UserNormal(String userEmail, String userPass, String userName, String userPhone, String city) {
+        this.userEmail = userEmail;
+        this.userPass = userPass;
+        this.userName = userName;
+        this.userPhone = userPhone;
+        this.city = city;
     }
 
     public String getUserEmail() {

@@ -11,17 +11,41 @@ public class UserHomeOwner {
     String userPass;
     String userName;
     String userPhone;
+    String city = "";
+
+    public UserHomeOwner(String userEmail, String userPass, String userName, String userPhone, String city, boolean driverStatus) {
+        this.userEmail = userEmail;
+        this.userPass = userPass;
+        this.userName = userName;
+        this.userPhone = userPhone;
+        this.city = city;
+        this.driverStatus = driverStatus;
+    }
+
+    public String getCity() {
+
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    boolean driverStatus = false;//by default
+
 
 
     public UserHomeOwner() {
     }
 
-    public UserHomeOwner(String userEmail, String userPass, String userName, String userPhone) {
 
-        this.userEmail = userEmail;
-        this.userPass = userPass;
-        this.userName = userName;
-        this.userPhone = userPhone;
+    public boolean isDriverStatus() {
+
+        return driverStatus;
+    }
+
+    public void setDriverStatus(boolean driverStatus) {
+        this.driverStatus = driverStatus;
     }
 
     public String getUserEmail() {

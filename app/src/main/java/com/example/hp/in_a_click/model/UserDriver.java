@@ -11,35 +11,30 @@ public class UserDriver {
     String userPass;
     String userName;
     String userPhone;
-    String driverStatus = "NonActivated";//by default
+    String city = "";
 
-
-    public UserDriver(String userEmail, String userPass, String userName, String userPhone, String driverStatus) {
-        this.userEmail = userEmail;
-        this.userPass = userPass;
-        this.userName = userName;
-        this.userPhone = userPhone;
-        this.driverStatus = driverStatus;
+    public String getCity() {
+        return city;
     }
 
-    public String getDriverStatus() {
-
-        return driverStatus;
+    public void setCity(String city) {
+        this.city = city;
     }
 
-    public void setDriverStatus(String driverStatus) {
-        this.driverStatus = driverStatus;
-    }
+    boolean driverStatus = false;//by default
+
 
     public UserDriver() {
     }
 
-    public UserDriver(String userEmail, String userPass, String userName, String userPhone) {
 
+    public UserDriver(String userEmail, String userPass, String userName, String userPhone, String city, boolean driverStatus) {
         this.userEmail = userEmail;
         this.userPass = userPass;
         this.userName = userName;
         this.userPhone = userPhone;
+        this.city = city;
+        this.driverStatus = driverStatus;
     }
 
     public String getUserEmail() {
@@ -72,5 +67,14 @@ public class UserDriver {
 
     public void setUserPhone(String userPhone) {
         this.userPhone = userPhone;
+    }
+
+    public boolean isDriverStatus() {
+
+        return driverStatus;
+    }
+
+    public void setDriverStatus(boolean driverStatus) {
+        this.driverStatus = driverStatus;
     }
 }

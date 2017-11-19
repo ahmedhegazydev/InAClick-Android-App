@@ -68,6 +68,18 @@
 
                 />
 
+            <com.rengwuxian.materialedittext.MaterialEditText
+                android:id="@+id/etCity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:hint="City"
+                android:inputType="textPersonName|textCapWords"
+                android:padding="10dp"
+
+
+                />
+
             <!--<com.rengwuxian.materialedittext.MaterialEditText-->
             <!--android:id="@+id/etPhone"-->
             <!--android:layout_width="match_parent"-->
@@ -88,7 +100,7 @@
                 android:visibility="visible">
 
                 <com.hbb20.CountryCodePicker
-                    android:id="@+id/countryCodePicker"
+                    android:id="@+id/ccpRegister"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:ccpDialog_keyboardAutoPopup="true"
@@ -176,7 +188,9 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:padding="10dp"
+                        android:paddingBottom="10dp"
+                        android:paddingLeft="15dp"
+                        android:paddingTop="10dp"
                         android:text="Selected Role : "
                         android:textSize="15sp"
 
