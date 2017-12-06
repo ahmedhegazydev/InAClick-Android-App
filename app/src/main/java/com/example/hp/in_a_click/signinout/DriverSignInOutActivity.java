@@ -1,26 +1,39 @@
 package com.example.hp.in_a_click.signinout;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -38,6 +51,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
@@ -45,8 +59,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.example.hp.in_a_click.R;
+import com.example.hp.in_a_click.code.GetComplexCode;
 import com.example.hp.in_a_click.dialogs.FragmentModalBottomSheet;
+import com.example.hp.in_a_click.general.Urls;
 import com.example.hp.in_a_click.model.UserDriver;
 import com.example.hp.in_a_click.model.UserHomeOwner;
 import com.example.hp.in_a_click.model.UserNormal;
@@ -112,7 +136,12 @@ import org.json.JSONObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -121,12 +150,23 @@ import butterknife.ButterKnife;
 import dmax.dialog.SpotsDialog;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 public class DriverSignInOutActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
     public static final String WHO = "WHO";
-    final static String TAG_HOME_OWNER = "HOME_OWNER";
-    final static String TAG_DRIVER = "CAR_DRIVER";
+
+    public final static String TAG_HOME_OWNER = "TAG_HOME_OWNER";
+    public final static String TAG_DRIVER = "TAG_DRIVER";
+    public final static String TAG_NORMAL_USER = "TAG_NORMAL_USER";
+
     private static final String TAG = "PhoneAuthActivity";
     private static final String KEY_VERIFY_IN_PROGRESS = "key_verify_in_progress";
     private static final int STATE_INITIALIZED = 1;
@@ -216,10 +256,158 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
     };
     boolean emailExist = false;
     boolean errorType = false;
+    String selectedRoleWorkerLogin = "";
+    EditText etPhoneNumber = null;
+    CountryCodePicker ccpRegister = null;
+    EditText etCity = null;
+    SpotsDialog waitSendingEmail;
+    String from, to, subject, messageBody;
+    GoogleApiClient gacPlacePicker = null;
+    BottomDialog bottomDialogResendCode = null;
+    TextWatcher tw1 = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s.toString().trim().length() == 1) {
+                etDigit2.requestFocus();
+            } else {
+                //fabEnterDigits.hide();
+            }
+        }
+    };
+    TextWatcher tw3 = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s.toString().trim().length() == 1) {
+                etDigit4.requestFocus();
+            } else {
+                etDigit2.requestFocus();
+            }
+        }
+    };
+    TextWatcher tw5 = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s.toString().trim().length() == 1) {
+                etDigit6.requestFocus();
+                //fabEnterDigits.setVisibility(View.VISIBLE);
+                //fabEnterDigits.show();
+            } else {
+                etDigit4.requestFocus();
+                //fabEnterDigits.hide();
+            }
+        }
+    };
+    EditText etDigit1, etDigit2, etDigit3, etDigit4, etDigit5, etDigit6;
+    TextWatcher tw2 = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s.toString().trim().length() == 1) {
+                etDigit3.requestFocus();
+            } else {
+                etDigit1.requestFocus();
+            }
+        }
+    };
+    TextView tvTimeResendCode = null;
+    TextView tvErrorEnterDigits = null;
+    TextWatcher tw6 = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s.toString().trim().length() == 1) {
+                // etDigit3.requestFocus();
+//                fabEnterDigits.setVisibility(View.VISIBLE);
+//                fabEnterDigits.show();
+                tvErrorEnterDigits.setVisibility(View.GONE);
+            } else {
+                etDigit5.requestFocus();
+//                fabEnterDigits.hide();
+            }
+        }
+    };
+    FloatingActionButton fabEnterDigits = null;
+    TextWatcher tw4 = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s.toString().trim().length() == 1) {
+                etDigit5.requestFocus();
+//                fabEnterDigits.setVisibility(View.VISIBLE);
+//                fabEnterDigits.show();
+            } else {
+                etDigit3.requestFocus();
+                fabEnterDigits.hide();
+            }
+        }
+    };
+    Button btnResndCode = null;
+    AlertDialog alertDialogEnterDigits = null;
+    Button btnAlertResendCode = null;
+    Handler handler;
+    Runnable runnable = null;
+    boolean stopHandler = true;
+    int count = 0;
     private String strWorkerOrUser = "";
     private CallbackManager callbackManager;
     private String mVerificationId;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
+    private String code = "";
     //    private void setCountryCode() {
 //        Spinner spinnerCountries = (Spinner) findViewById(R.id.spinner);
 //        // populate country codes
@@ -335,6 +523,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //        }
 //    }
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
+    private int PLACE_PICKER_REQUEST = 13;
 
     public final static boolean isValidEmail(CharSequence target) {
         if (target == null) {
@@ -356,12 +545,28 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             onRestoreInstanceState(savedInstanceState);
         }
 
+//        if (FirebaseAuth.getInstance().getCurrentUser() != null){
+//            startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class));
+//            finish();
+//        }
+
         setContentView(R.layout.activity_driver_sign_in_out);
         ButterKnife.bind(this);
         init();
+        addBgStartImageView();
         initGoogleLoginButton();
         initPlacPicker();
 
+        //new GetComplexCode(getApplicationContext()).getComplexCode();
+
+
+    }
+
+    private void addBgStartImageView() {
+        Glide.with(context)
+                .load(R.drawable.bg_start)
+                //.centerCrop()
+                .into((ImageView) findViewById(R.id.ivBgStart));
 
     }
 
@@ -376,8 +581,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
 
     }
-
-    private int PLACE_PICKER_REQUEST = 13;
 
     private boolean checkIfEmailExistForSmrUserTest(String insertedEmailWhileReg) {
         Query query = refUsers.orderByChild("userEmail").equalTo(insertedEmailWhileReg);
@@ -661,14 +864,15 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                     // User is signed in
                     // NOTE: this Activity should get onpen only when the user is not signed in, otherwise
                     // the user will receive another verification email.
-                    sendVerificationEmail();
+                    //sendVerificationEmail();
                 } else {
                     // User is signed out
 
                 }
             }
         };
-        firebaseAuth.addAuthStateListener(authStateListener);
+       // firebaseAuth.addAuthStateListener(authStateListener);
+
         firebaseDatabase = FirebaseDatabase.getInstance();
         refUsers = firebaseDatabase.getReference("Users");
         refWorkers = firebaseDatabase.getReference("Workers");
@@ -949,6 +1153,12 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 }
             }
         });
+        cbWorkerLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                showWorkerOptMenu();
+            }
+        });
 
 
         final View view1 = viewLogin.findViewById(R.id.llLoginWithEmail);
@@ -1027,8 +1237,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
     }
 
-    String selectedRoleWorkerLogin = "";
-
     private void showWorkerOptMenu() {
 
         new MaterialDialog.Builder(this)
@@ -1037,8 +1245,15 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
                     @Override
                     public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
                         selectedRoleWorkerLogin = (String) text;
+                        if (selectedRoleWorkerLogin.equals("Driver")) {
+                            selectedRoleWorkerLogin = TAG_DRIVER;
+                            //Toast.makeText(context, selectedRoleWorkerLogin, Toast.LENGTH_SHORT).show();
+                        } else {
+                            selectedRoleWorkerLogin = TAG_HOME_OWNER;
+                            //Toast.makeText(context, selectedRoleWorkerLogin, Toast.LENGTH_SHORT).show();
+                        }
                         return true;
                     }
                 })
@@ -1047,7 +1262,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
 
     }
-
 
     public void showWorkerOptMenu(View button) {
         PopupMenu popup = new PopupMenu(this, button);
@@ -1120,18 +1334,33 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                         // If sign in fails, display a message to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            //Log.w("TAG", "signInWithEmail:failed", task.getException());
-                            showMessage(context, "Email or Password is invalid\nPlease check them\nThen try again");
-                            Sneaker.with(DriverSignInOutActivity.this)
-                                    .setTitle("Error - Email or Password is invalid")
-                                    .setMessage("Check internet connection !!!")
-                                    .sneakError();
-                        } else {
-                            checkIfEmailVerified();
-                        }
-                        if (waitLogin.isShowing()) {
-                            waitLogin.dismiss();
+//                        if (!task.isSuccessful()) {
+//                            //Log.w("TAG", "signInWithEmail:failed", task.getException());
+//                            showMessage(context, "Email or Password is invalid\nPlease check them\nThen try again");
+//                            Sneaker.with(DriverSignInOutActivity.this)
+//                                    .setTitle("Error - Email or Password is invalid")
+//                                    .setMessage("Check internet connection !!!")
+//                                    .sneakError();
+//                        } else {
+//                            checkIfEmailVerified(task);
+//                        }
+
+                        if (task.isComplete()) {
+                            Intent intent = new Intent(DriverSignInOutActivity.this, MenuActivity.class);
+                            if (cbUserLogin.isChecked()) {
+                                intent.putExtra(WHO, TAG_NORMAL_USER);
+                            } else {
+                                if (selectedRoleWorkerLogin.equals(TAG_DRIVER)) {
+                                    intent.putExtra(WHO, TAG_DRIVER);
+                                } else {
+                                    intent.putExtra(WHO, TAG_HOME_OWNER);
+                                }
+                            }
+                            if (waitLogin.isShowing()) {
+                                waitLogin.dismiss();
+                            }
+                            startActivity(intent);
+                            finish();
                         }
 
                     }
@@ -1154,8 +1383,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 });
 
     }
-
-    EditText etPhoneNumber = null;
 
     public void loginUserWithPhoneNumber() {
         etPhoneNumber = viewLogin.findViewById(R.id.etPhoneNumber);
@@ -1184,10 +1411,11 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         //btnSIgnIn.setEnabled(false);
 //        waitLogin.show();
 
-
         //ok the , let's go to signin with phone number
         startPhoneNumberVerification(countryCode + etPhoneNumber.getText().toString());
 
+
+        //loginUserVolley(Urls.URL_LOGIN, new GetComplexCode(getApplicationContext()).getComplexCode(), etPhoneNumber.getText().toString());
     }
 
     public Phonenumber.PhoneNumber getMyNumber(Context context) {
@@ -1199,10 +1427,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             return null;
         }
     }
-
-    CountryCodePicker ccpRegister = null;
-
-    EditText etCity = null;
 
     private void showRegister() {
 
@@ -1383,6 +1607,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
         if (cbUserReg.isChecked()) {
             //do nothing
+
         } else {
             if (strDriverOrHome == "") {
 //            Snackbar.make(rlMainView, "Please Select Your Role", Snackbar.LENGTH_SHORT).show();
@@ -1404,8 +1629,26 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         tvErrorRegister.setVisibility(View.GONE);
 
         waitLogin = new SpotsDialog(DriverSignInOutActivity.this, "Please wait");
-        btnSIgnIn.setEnabled(false);
+        //btnSIgnIn.setEnabled(false);
         waitLogin.show();
+
+//
+//        home 2
+//        user 4
+//        car 3
+
+//        registerUserNow(
+//                Urls.URL_REGISTER,
+//                new GetComplexCode(getApplicationContext()).getComplexCode(),
+//                (cbUserReg.isChecked()) ? "4" : (strDriverOrHome == TAG_DRIVER ? "3" : "2"),
+//                etNameReg.getText().toString(),
+//                etEmailReg.getText().toString(),
+//                etPassReg.getText().toString(),
+//                etCity.getText().toString(),
+//                etPhoneReg.getText().toString()
+//
+//        );
+
 
         firebaseAuth.createUserWithEmailAndPassword(etEmailReg.getText().toString(), etPassReg.getText().toString())
 //                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
@@ -1414,13 +1657,9 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
 //                    @Override
-//                    public void onSuccess(@NonNull AuthResult task) {
-
-
+//                    public void onSuccess(@NonNull AuthResult task)
                         waitLogin.dismiss();
                         checkIfEmailExist(task);
-
-
                     }
                 })
 
@@ -1439,6 +1678,456 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 });
 
 
+    }
+
+    String verificationCodeEmail, verificationCodePhone;
+
+    private void registerUserNow(String url,
+                                 final String key, final String userType,
+                                 final String fullName, final String emailAddress, final String password, final String address, final String phoneNumber) {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.e("jsonRegister", response.toString());
+
+                        if (waitLogin.isShowing()) {
+                            waitLogin.dismiss();
+                        }
+                        try {
+                            JSONObject jsonObject1 = new JSONObject(response);
+                            String code = "";
+                            code = jsonObject1.getString("code");
+                            if (code.equalsIgnoreCase("0")) {
+                                Sneaker.with(DriverSignInOutActivity.this)
+                                        .setTitle("Email or phone number already exists")
+                                        .sneakWarning();
+                            }
+                            if (code.equalsIgnoreCase("1")) {
+                                Sneaker.with(DriverSignInOutActivity.this)
+                                        .setTitle("Registered success")
+                                        .sneakSuccess();
+                                Sneaker.with(DriverSignInOutActivity.this)
+                                        .setTitle("Please, Confirm your phone and email address")
+                                        .sneakSuccess();
+
+
+                                verificationCodeEmail = jsonObject1.getString("verificationCode");
+                                verificationCodePhone = jsonObject1.getString("verificationCode2");
+                                from = "engahmedali2022@gmail.com";
+                                to = etEmailReg.getText().toString();
+                                subject = "In A Click";
+                                messageBody = "The verification code for email address is " +
+                                        verificationCodeEmail
+                                ;
+
+                                //sending the email verification code via email only
+                                new AsyncSendingEmail(context).execute();
+                                //sending the sms code
+//                                if (isSMSPermissionGranted()) {
+//                                    sendSms(ccpRegister.getSelectedCountryCodeWithPlus() + etPhoneReg.getText().toString(),
+//                                            "In A Click \n The verification code is " + verificationCodePhone);
+//                                }
+//                                sendSms2(/*ccpRegister.getFullNumber()+*/etPhoneReg.getText().toString(),
+//                                        "In A Click \n The verification code is " + verificationCodePhone);
+
+
+                            }
+                            if (code.equalsIgnoreCase("2")) {
+                                Sneaker.with(DriverSignInOutActivity.this)
+                                        .setTitle("Plugin not activated !!")
+                                        .sneakError();
+                            }
+                            if (code.equalsIgnoreCase("3")) {
+                                Sneaker.with(DriverSignInOutActivity.this)
+                                        .setTitle("Request error !!!")
+                                        .sneakError();
+                            }
+                            if (code.equalsIgnoreCase("4")) {
+                                Sneaker.with(DriverSignInOutActivity.this)
+                                        .setTitle("Request match error !!!")
+                                        .sneakError();
+
+                            }
+                            if (code.equalsIgnoreCase("5")) {
+                                Sneaker.with(DriverSignInOutActivity.this)
+                                        .setTitle("Something wrong !!")
+                                        .sneakError();
+                            }
+
+//
+
+
+                        } catch (Exception e) {
+//                            Snackbar.make(viewRoot, "Network Error !!!!", Snackbar.LENGTH_SHORT).show();
+                        } finally {
+//                            pdLogging.dismiss();
+
+                        }
+
+                    }
+
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //Toast.makeText(LoginActivity.this, "onErrorResponse" + error.getMessage(), Toast.LENGTH_LONG).show();
+                        //Log.e("ErrorResponse", error.getMessage().toString());
+                        //error.printStackTrace();
+                        //Snackbar.make(viewRoot, "Network Error !!!!", Snackbar.LENGTH_SHORT).show();
+                        Sneaker.with(DriverSignInOutActivity.this)
+                                .setTitle("Check Internet Connection")
+                                .sneakError();
+
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("key", key);
+                params.put("usertype", userType);
+                params.put("name", fullName);
+                params.put("password", password);
+                params.put("email", emailAddress);
+                params.put("address", address);
+                params.put("mobile", phoneNumber);
+
+                return params;
+            }
+        };
+        postRequest.setRetryPolicy(new DefaultRetryPolicy(0, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        queue.add(postRequest);
+
+
+    }
+
+
+    private void sendSms(String phoneNo, String message) {
+//        try {
+//            SmsManager smsManager = SmsManager.getDefault();
+//            smsManager.sendTextMessage(phoneNo, null, msg, null, null);
+//            Toast.makeText(getApplicationContext(), "Message Sent",
+//                    Toast.LENGTH_LONG).show();
+//        } catch (Exception ex) {
+//            Toast.makeText(getApplicationContext(), ex.getMessage().toString(),
+//                    Toast.LENGTH_LONG).show();
+//            ex.printStackTrace();
+//        }
+
+        PendingIntent pi = PendingIntent.getActivity(this, 0,
+                new Intent(this, DriverSignInOutActivity.class), 0);
+        SmsManager sms = SmsManager.getDefault();
+        sms.sendTextMessage(phoneNo, null, message, pi, null);
+
+
+    }
+
+    //    /---sends an SMS message to another device---
+    private void sendSms2(String phoneNumber, String message) {
+        String SENT = "SMS_SENT";
+        String DELIVERED = "SMS_DELIVERED";
+
+        PendingIntent sentPI = PendingIntent.getBroadcast(this, 0,
+                new Intent(SENT), 0);
+
+        PendingIntent deliveredPI = PendingIntent.getBroadcast(this, 0,
+                new Intent(DELIVERED), 0);
+
+        //---when the SMS has been sent---
+        registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context arg0, Intent arg1) {
+                switch (getResultCode()) {
+                    case Activity.RESULT_OK:
+                        Toast.makeText(getBaseContext(), "SMS sent",
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+                        Toast.makeText(getBaseContext(), "Generic failure",
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                    case SmsManager.RESULT_ERROR_NO_SERVICE:
+                        Toast.makeText(getBaseContext(), "No service",
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                    case SmsManager.RESULT_ERROR_NULL_PDU:
+                        Toast.makeText(getBaseContext(), "Null PDU",
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                    case SmsManager.RESULT_ERROR_RADIO_OFF:
+                        Toast.makeText(getBaseContext(), "Radio off",
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        }, new IntentFilter(SENT));
+
+        //---when the SMS has been delivered---
+        registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context arg0, Intent arg1) {
+                switch (getResultCode()) {
+                    case Activity.RESULT_OK:
+                        Toast.makeText(getBaseContext(), "SMS delivered",
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        Toast.makeText(getBaseContext(), "SMS not delivered",
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        }, new IntentFilter(DELIVERED));
+
+        SmsManager sms = SmsManager.getDefault();
+        sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+
+            case 0: {
+
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(), "Permission granted", Toast.LENGTH_SHORT).show();
+                    //send sms here call your method
+                    sendSms(ccpRegister.getSelectedCountryCodeWithPlus() + etPhoneReg.getText().toString(),
+                            "In A Click \n The verification code is " + verificationCodePhone);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
+    public boolean isSMSPermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.SEND_SMS)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v(TAG, "Permission is granted");
+                return true;
+            } else {
+
+                Log.v(TAG, "Permission is revoked");
+                ActivityCompat.requestPermissions((Activity) getApplicationContext(), new String[]{Manifest.permission.SEND_SMS}, 0);
+                return false;
+            }
+        } else { //permission is automatically granted on sdk<23 upon installation
+            Log.v(TAG, "Permission is granted");
+            return true;
+        }
+    }
+
+    private void loginUserVolley(String url,
+                                 final String key,
+                                 final String phoneNumber) {
+
+        waitDialog = new SpotsDialog(DriverSignInOutActivity.this, "Please wait ...");
+        waitDialog.show();
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.e("jsonLoginUser20130074", response.toString());
+
+                        if (waitDialog.isShowing()) {
+                            waitDialog.dismiss();
+                        }
+                        try {
+                            JSONObject jsonObject1 = new JSONObject(response);
+                            String code = "";
+                            code = jsonObject1.getString("code");
+                            if (code.equalsIgnoreCase("0")) {
+                                Sneaker.with(DriverSignInOutActivity.this)
+                                        .setTitle("User not exits !!!!")
+                                        .sneakError();
+                            }
+                            if (code.equalsIgnoreCase("1")) {
+                                Sneaker.with(DriverSignInOutActivity.this)
+                                        .setTitle("Logged success")
+                                        .sneakSuccess();
+                                String userType = "";
+                                userType = jsonObject1.getJSONObject("data").getString("usertype");
+                                //Toast.makeText(context, userType, Toast.LENGTH_SHORT).show();
+                                //finish();
+                                //normal user
+                                if (userType.equals("4")) {
+                                    //Toast.makeText(context, TAG_NORMAL_USER, Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, TAG_NORMAL_USER));
+
+                                } else {
+                                    //driver
+                                    if (userType.equals("3")) {
+                                        startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, TAG_DRIVER));
+                                    } else {
+                                        //home owner
+                                        startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, TAG_HOME_OWNER));
+                                    }
+                                }
+
+
+                            }
+                            if (code.equalsIgnoreCase("2")) {
+                                Sneaker.with(DriverSignInOutActivity.this)
+                                        .setTitle("Plugin not activated !!")
+                                        .sneakError();
+                            }
+                            if (code.equalsIgnoreCase("3")) {
+                                Sneaker.with(DriverSignInOutActivity.this)
+                                        .setTitle("Request error !!!")
+                                        .sneakError();
+                            }
+                            if (code.equalsIgnoreCase("4")) {
+                                Sneaker.with(DriverSignInOutActivity.this)
+                                        .setTitle("Request match error !!!")
+                                        .sneakError();
+
+                            }
+
+                            if (code.equalsIgnoreCase("6")) {
+                                Sneaker.with(DriverSignInOutActivity.this)
+                                        .setTitle("User not active !!!")
+                                        .sneakError();
+                                showActivationView();
+                            }
+                            if (code.equalsIgnoreCase("7")) {
+                                Sneaker.with(DriverSignInOutActivity.this)
+                                        .setTitle("Wrong key !!!!")
+                                        .sneakError();
+                            }
+//
+
+
+                        } catch (Exception e) {
+//                            Snackbar.make(viewRoot, "Network Error !!!!", Snackbar.LENGTH_SHORT).show();
+                        } finally {
+//                            pdLogging.dismiss();
+
+                        }
+
+                    }
+
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //Toast.makeText(LoginActivity.this, "onErrorResponse" + error.getMessage(), Toast.LENGTH_LONG).show();
+                        //Log.e("ErrorResponse", error.getMessage().toString());
+                        //error.printStackTrace();
+                        //Snackbar.make(viewRoot, "Network Error !!!!", Snackbar.LENGTH_SHORT).show();
+                        Sneaker.with(DriverSignInOutActivity.this)
+                                .setTitle("Check Internet Connection")
+                                .sneakError();
+
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("key", key);
+                params.put("mobile", phoneNumber);
+
+                return params;
+            }
+        };
+        postRequest.setRetryPolicy(new DefaultRetryPolicy(0, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        queue.add(postRequest);
+
+
+    }
+
+    AlertDialog dialogVerificationView;
+    EditText etEmailCode, etPhoneCode;
+
+    private void showActivationView() {
+
+        View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.layout_phone_email_activation, null);
+
+        etEmailCode = ((TextInputLayout) view.findViewById(R.id.tilEmailCode)).getEditText();
+        etPhoneCode = ((TextInputLayout) view.findViewById(R.id.tilPhoneCode)).getEditText();
+        Button btnConfirmCodes = view.findViewById(R.id.btnVerifyNow);
+        btnConfirmCodes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (TextUtils.isEmpty(etEmailCode.getText())) {
+                    etEmailCode.setError("Enter code");
+                    return;
+                }
+
+                if (TextUtils.isEmpty(etPhoneCode.getText())) {
+                    etPhoneCode.setError("Enter code");
+                    return;
+                }
+
+                Toast.makeText(context, "done", Toast.LENGTH_SHORT).show();
+
+
+            }
+        });
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(DriverSignInOutActivity.this);
+        builder.setView(view);
+
+
+        dialogVerificationView = builder.create();
+        if (!dialogVerificationView.isShowing())
+            dialogVerificationView.show();
+
+
+    }
+
+
+    public void sendEmail(String from, String to, String subject, String messageText) {
+        try {
+            String host = "smtp.gmail.com";
+            String user = "engahmedali2022@gmail.com";
+            String pass = "123456789(*&^%$#@!Aa!@#$";
+            //String to = "Ahmedramzy_fcih@yahoo.com";
+            //String from = "wowrar1234@gmail.com";
+            //String subject = "Congratulations, Ahmed Ramzy";
+            //String messageText = "Do not tell any one, I am Ahmed Mohammed Ali Ali";
+            boolean sessionDebug = false;
+
+            Properties props = System.getProperties();
+
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.host", host);
+            props.put("mail.smtp.port", "587");
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.required", "true");
+
+            //java.security.Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
+            Session mailSession = Session.getDefaultInstance(props, null);
+            mailSession.setDebug(sessionDebug);
+            Message msg = new MimeMessage(mailSession);
+            msg.setFrom(new InternetAddress(from));
+            InternetAddress[] address = {new InternetAddress(to)};
+            msg.setRecipients(Message.RecipientType.TO, address);
+            msg.setSubject(subject);
+            msg.setSentDate(new Date());
+            msg.setText(messageText);
+
+            Transport transport = mailSession.getTransport("smtp");
+            transport.connect(host, user, pass);
+            transport.sendMessage(msg, msg.getAllRecipients());
+            transport.close();
+            System.out.println("message send successfully");
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
     }
 
     public void checkIfEmailExist(@NonNull Task<AuthResult> task) {
@@ -1483,8 +2172,9 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                     etEmailReg.getText().toString(),
                     etPassReg.getText().toString(),
                     etNameReg.getText().toString(),
-                    etCity.getText().toString(),
-                    ccpRegister.getSelectedCountryCodeWithPlus() + etPhoneReg.getText().toString()
+                    ccpRegister.getSelectedCountryCodeWithPlus() + etPhoneReg.getText().toString(),
+                    etCity.getText().toString()
+
             );
             //using email to key, u can't as itis contain @ and .   characters
             //use id instead
@@ -1605,9 +2295,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         });
         return emailExist;
     }
-
-    GoogleApiClient gacPlacePicker = null;
-
 
     private void hideRole() {
 
@@ -1796,20 +2483,29 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
     }
 
-    private void checkIfEmailVerified() {
+    private void checkIfEmailVerified(Task<AuthResult> task) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        if (user.isEmailVerified()) {
+        assert user != null;
+        if (!user.isEmailVerified()) { //-> here clear the not char
             // user is verified, so you can finish this activity or send user to activity which you want.
-
             //Snackbar.make(rlMainView, "Logged success", Snackbar.LENGTH_SHORT).show();
             //btnSIgnIn.setEnabled(true);
             Intent intent = new Intent(DriverSignInOutActivity.this, MenuActivity.class);
             if (cbUserLogin.isChecked()) {
-                intent.putExtra(WHO, "User");
+                intent.putExtra(WHO, TAG_NORMAL_USER);
             } else {
-                intent.putExtra(WHO, "Worker");
+                if (selectedRoleWorkerLogin.equals(TAG_DRIVER)) {
+                    intent.putExtra(WHO, TAG_DRIVER);
+                    //Toast.makeText(context, "Driver", Toast.LENGTH_SHORT).show();
+                } else {
+                    intent.putExtra(WHO, TAG_HOME_OWNER);
+                    //Toast.makeText(context, "Home Owner", Toast.LENGTH_SHORT).show();
+                }
             }
+            //as a test
+            //FirebaseAuth.getInstance().signOut();
+
             startActivity(intent);
             finish();
         } else {
@@ -1821,8 +2517,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             tvErrorLogin.setVisibility(View.VISIBLE);
             tvErrorLogin.setText("Please check email verification");
             tvErrorLogin.startAnimation(AnimationUtils.loadAnimation(context, R.anim.wobble));
-            sendVerificationEmail();
-
+            //sendVerificationEmail();
 
             FirebaseAuth.getInstance().signOut();
         }
@@ -1964,144 +2659,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
     }
 
-    BottomDialog bottomDialogResendCode = null;
-    TextWatcher tw1 = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            if (s.toString().trim().length() == 1) {
-                etDigit2.requestFocus();
-            } else {
-                //fabEnterDigits.hide();
-            }
-        }
-    };
-    TextWatcher tw2 = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            if (s.toString().trim().length() == 1) {
-                etDigit3.requestFocus();
-            } else {
-                etDigit1.requestFocus();
-            }
-        }
-    };
-    TextWatcher tw3 = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            if (s.toString().trim().length() == 1) {
-                etDigit4.requestFocus();
-            } else {
-                etDigit2.requestFocus();
-            }
-        }
-    };
-    TextWatcher tw4 = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            if (s.toString().trim().length() == 1) {
-                etDigit5.requestFocus();
-//                fabEnterDigits.setVisibility(View.VISIBLE);
-//                fabEnterDigits.show();
-            } else {
-                etDigit3.requestFocus();
-                fabEnterDigits.hide();
-            }
-        }
-    };
-    TextWatcher tw5 = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            if (s.toString().trim().length() == 1) {
-                etDigit6.requestFocus();
-                //fabEnterDigits.setVisibility(View.VISIBLE);
-                //fabEnterDigits.show();
-            } else {
-                etDigit4.requestFocus();
-                //fabEnterDigits.hide();
-            }
-        }
-    };
-    TextWatcher tw6 = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            if (s.toString().trim().length() == 1) {
-                // etDigit3.requestFocus();
-//                fabEnterDigits.setVisibility(View.VISIBLE);
-//                fabEnterDigits.show();
-                tvErrorEnterDigits.setVisibility(View.GONE);
-            } else {
-                etDigit5.requestFocus();
-//                fabEnterDigits.hide();
-            }
-        }
-    };
-
-    EditText etDigit1, etDigit2, etDigit3, etDigit4, etDigit5, etDigit6;
-    TextView tvTimeResendCode = null;
-    TextView tvErrorEnterDigits = null;
-    FloatingActionButton fabEnterDigits = null;
-    Button btnResndCode = null;
-    AlertDialog alertDialogEnterDigits = null;
-    Button btnAlertResendCode = null;
-
     private void showTheVerificationLayout() {
 
 
@@ -2129,6 +2686,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         btnResndCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                clearDigits();
                 btnResndCode.setVisibility(View.GONE);
                 resendVerificationCode(countryCode + etPhoneNumber.getText().toString(), mResendToken);
             }
@@ -2264,9 +2822,15 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
     }
 
-    Handler handler;
-    Runnable runnable = null;
-    boolean stopHandler = true;
+    private void clearDigits() {
+
+        etDigit1.setText("");
+        etDigit2.setText("");
+        etDigit3.setText("");
+        etDigit4.setText("");
+        etDigit5.setText("");
+        etDigit6.setText("");
+    }
 
     private void startCounter(final int delaySec) {
 
@@ -2294,42 +2858,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         };
         runnable.run(); // missing
     }
-
-    public abstract class CountUpTimer extends CountDownTimer {
-        private static final long INTERVAL_MS = 1000;
-        private final long duration;
-
-        protected CountUpTimer(long durationMs) {
-            super(durationMs, INTERVAL_MS);
-            this.duration = durationMs;
-        }
-
-        public abstract void onTick(int second);
-
-        @Override
-        public void onTick(long msUntilFinished) {
-            int second = (int) ((duration - msUntilFinished) / 1000);
-            tvTimeResendCode.setText(count + "sec");
-            count++;
-            if (count == 10) {
-                btnResndCode.setVisibility(View.VISIBLE);
-            } else {
-                if (btnResndCode.getVisibility() != View.GONE) {
-                    btnResndCode.setVisibility(View.GONE);
-                }
-                count = 0;
-                countUpTimer(1000, 1000);
-            }
-            onTick(second);
-        }
-
-        @Override
-        public void onFinish() {
-            onTick(duration / 1000);
-        }
-    }
-
-    int count = 0;
 
     public void countUpTimer(long delay, long period) {
         final Timer timer = new Timer();
@@ -2400,9 +2928,13 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //
                             FirebaseUser user = task.getResult().getUser();
                             if (cbUserLogin.isChecked()) {
-                                startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, "User"));
+                                startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, TAG_NORMAL_USER));
                             } else {
-                                startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, "Worker"));
+                                if (selectedRoleWorkerLogin == TAG_DRIVER) {
+                                    startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, TAG_DRIVER));
+                                } else {
+                                    startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, TAG_HOME_OWNER));
+                                }
                             }
                             finish();
                         } else {
@@ -2688,6 +3220,71 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         bottomDialogWorkerOptios.show();
 
 
+    }
+
+    class AsyncSendingEmail extends AsyncTask<String, Void, String> {
+        Context context;
+
+        public AsyncSendingEmail(Context context) {
+            this.context = context;
+            waitSendingEmail = new SpotsDialog(context, "Sending email Verification Code ...");
+            waitSendingEmail.show();
+
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            sendEmail(from, to, subject, messageBody);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            waitSendingEmail.dismiss();
+//
+
+        }
+    }
+
+    public abstract class CountUpTimer extends CountDownTimer {
+        private static final long INTERVAL_MS = 1000;
+        private final long duration;
+
+        protected CountUpTimer(long durationMs) {
+            super(durationMs, INTERVAL_MS);
+            this.duration = durationMs;
+        }
+
+        public abstract void onTick(int second);
+
+        @Override
+        public void onTick(long msUntilFinished) {
+            int second = (int) ((duration - msUntilFinished) / 1000);
+            tvTimeResendCode.setText(count + "sec");
+            count++;
+            if (count == 10) {
+                btnResndCode.setVisibility(View.VISIBLE);
+            } else {
+                if (btnResndCode.getVisibility() != View.GONE) {
+                    btnResndCode.setVisibility(View.GONE);
+                }
+                count = 0;
+                countUpTimer(1000, 1000);
+            }
+            onTick(second);
+        }
+
+        @Override
+        public void onFinish() {
+            onTick(duration / 1000);
+        }
     }
 
 }

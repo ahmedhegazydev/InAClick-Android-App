@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rlMainView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+
+
+    >
+
+    <LinearLayout
+        android:id="@+id/status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:background="@color/md_indigo_200"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <Button
+                android:id="@+id/btnOpenMenu"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_margin="20dp"
+                android:background="@drawable/titlebar_menu_selector" />
+
+            <TextSwitcher
+                android:id="@+id/textSwitcherStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/btnOpenMenu"
+                android:padding="10dp"
+                android:text="Online"
+                android:textColor="@color/md_indigo_400"
+                android:textSize="18sp"
+                android:textStyle="bold"
+
+                />
+
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/switchDriverStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_margin="5dp"
+                android:checked="true"
+
+                />
+        </RelativeLayout>
+    </LinearLayout>
+    <ProgressBar
+        android:id="@+id/pbChangeStatusDriver"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/status"
+        android:visibility="gone"
+        android:indeterminateOnly="true"/>
+
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/mapViewDriver"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/pbChangeStatusDriver" />
+
+
+</RelativeLayout>

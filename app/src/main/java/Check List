@@ -30,5 +30,11 @@ Error:Execution failed for task ':app:processDebugManifest'. >
 Manifest merger failed : Attribute meta-data#com.facebook.sdk.ApplicationId@value value=(@string/fb_app_id20130074)
  from AndroidManifest.xml:122:13-54 is also present at [com.firebaseui:firebase-ui-auth:1.2.0] AndroidManifest.xml:23:13-60 value=(@string/facebook_application_id).
 Suggestion: add 'tools:replace="android:value"' to <meta-data> element at AndroidManifest.xml:120:9-122:57 to override.
-
-
+===============================================
+1-auto fetch current location when the user open the map
+2-centered pen location icon for getting the center of map location and convert it to location name
+3-Thus, the user can select (from location) and (to location)
+4-design of Where to, from to and add stop UI
+5-Designing of the possibility of Adding Work/Home/Saved places/Enter destination later/Set location on map UI
+6-Createing a custom auto place picker using web services then user can select from fetched locations
+7-implementing add home

@@ -16,11 +16,13 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="3dp"
-            android:background="#2ea3fe" />
+            android:background="#2ea3fe"
+            android:visibility="gone" />
 
         <FrameLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:visibility="gone">
 
             <!--<Button-->
             <!--android:id="@+id/title_bar_left_menu"-->

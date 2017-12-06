@@ -13,8 +13,12 @@
         android:label="Tests for com.special.ResideMenu.test"
         android:targetPackage="com.special.ResideMenu.test" />
 
-    <application>
+    <application android:debuggable="true" >
         <uses-library android:name="android.test.runner" />
+
+        <meta-data
+            android:name="android.arch.lifecycle.VERSION"
+            android:value="27.0.0-SNAPSHOT" />
     </application>
 
 </manifest>

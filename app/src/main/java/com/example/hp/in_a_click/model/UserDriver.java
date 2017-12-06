@@ -7,11 +7,42 @@ package com.example.hp.in_a_click.model;
 public class UserDriver {
 
 
-    String userEmail;
-    String userPass;
-    String userName;
-    String userPhone;
-    String city = "";
+    private String userEmail;
+    private String userPass;
+    private String userName;
+    private String userPhone;
+    private String city = "";
+    ///---------
+    String carModelNumber = "";
+
+    public UserDriver(String userEmail, String userPass, String userName, String userPhone, String city, String carModelNumber, String carCatName, boolean driverStatus) {
+        this.userEmail = userEmail;
+        this.userPass = userPass;
+        this.userName = userName;
+        this.userPhone = userPhone;
+        this.city = city;
+        this.carModelNumber = carModelNumber;
+        this.carCatName = carCatName;
+        this.driverStatus = driverStatus;
+    }
+
+    String carCatName = "";
+
+    public String getCarModelNumber() {
+        return carModelNumber;
+    }
+
+    public void setCarModelNumber(String carModelNumber) {
+        this.carModelNumber = carModelNumber;
+    }
+
+    public String getCarCatName() {
+        return carCatName;
+    }
+
+    public void setCarCatName(String carCatName) {
+        this.carCatName = carCatName;
+    }
 
     public String getCity() {
         return city;

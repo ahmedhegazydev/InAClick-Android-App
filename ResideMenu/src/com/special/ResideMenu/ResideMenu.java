@@ -11,6 +11,7 @@ import android.view.*;
 import android.view.animation.AnimationUtils;
 import android.widget.*;
 
+import com.bumptech.glide.Glide;
 import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
@@ -113,8 +114,19 @@ public class ResideMenu extends FrameLayout {
             layoutRightMenu = (LinearLayout) scrollViewRightMenu.findViewById(R.id.layout_right_menu);
         }
 
+
         imageViewShadow = (ImageView) findViewById(R.id.iv_shadow);
         imageViewBackground = (ImageView) findViewById(R.id.iv_background);
+
+
+        Glide.with(context)
+                //.load(R.drawable.map_with_icons)
+                .load(R.drawable.map_with_icons)
+                //.centerCrop()
+                .into(imageViewBackground);
+
+
+
 
         RelativeLayout menuHolder = (RelativeLayout) findViewById(R.id.sv_menu_holder);
         menuHolder.addView(scrollViewLeftMenu);

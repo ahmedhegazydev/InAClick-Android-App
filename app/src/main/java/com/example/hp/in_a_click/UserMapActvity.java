@@ -628,7 +628,6 @@ public class UserMapActvity extends FragmentActivity implements OnMapReadyCallba
             final double lat = location.getLatitude();
             final double lon = location.getLongitude();
 
-
             geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(lat, lon), new GeoFire.CompletionListener() {
                 @Override
                 public void onComplete(String key, DatabaseError error) {

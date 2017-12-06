@@ -1,6 +1,8 @@
 package com.example.hp.in_a_click.residemenu;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -12,17 +14,106 @@ import android.widget.Toast;
 import com.example.hp.in_a_click.R;
 import com.example.hp.in_a_click.UserMapActvity;
 import com.example.hp.in_a_click.WorkerMapActvity;
+import com.example.hp.in_a_click.frg_driver.FrgDriverMap;
+import com.example.hp.in_a_click.frg_driver.FrgDriverProfile;
+import com.example.hp.in_a_click.frg_driver.FrgDriverSettings;
+import com.example.hp.in_a_click.frg_driver.FrgDriverTrips;
+import com.example.hp.in_a_click.frg_driver.FrgDriverVehicles;
+import com.example.hp.in_a_click.frg_user.FrgUserHomes;
+import com.example.hp.in_a_click.frg_user.FrgUserMap;
+import com.example.hp.in_a_click.frg_user.FrgUserProfile;
+import com.example.hp.in_a_click.frg_user.FrgUserSettings;
+import com.example.hp.in_a_click.frg_user.FrgUserTrips;
 import com.example.hp.in_a_click.signinout.DriverSignInOutActivity;
 import com.special.ResideMenu.ResideMenu;
 import com.special.ResideMenu.ResideMenuItem;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class MenuActivity extends FragmentActivity implements View.OnClickListener {
 
+    public final static String WHO = "WHO";
     private ResideMenu resideMenu;
     private MenuActivity mContext;
-    private ResideMenuItem itemUserHome, itemUserTrip, itemWorkerDriver, itemWorkerHome;
-    private ResideMenuItem itemProfile;
-    private ResideMenuItem itemSettings, itemSignout, itemAboutUs, itemContactUs;
+    View.OnClickListener[] listenersUserMenu = new View.OnClickListener[]{
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    changeFragment(new FrgUserProfile());
+                }
+            },
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    changeFragment(new FrgUserMap());
+                }
+            },
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    changeFragment(new FrgUserTrips());
+                }
+            },
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    changeFragment(new FrgUserHomes());
+                }
+            },
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    changeFragment(new FrgUserSettings());
+                }
+            },
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                    startActivity(new Intent(mContext, DriverSignInOutActivity.class));
+                }
+            }
+    };
+    View.OnClickListener[] listenersDriverMenu = new View.OnClickListener[]{
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    changeFragment(new FrgDriverProfile());
+                }
+            },
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    changeFragment(new FrgDriverMap());
+                }
+            },
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    changeFragment(new FrgDriverTrips());
+                }
+            },
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    changeFragment(new FrgDriverVehicles());
+                }
+            },
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    changeFragment(new FrgDriverSettings());
+                }
+            },
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                    startActivity(new Intent(mContext, DriverSignInOutActivity.class));
+                }
+            }
+    };
     private ResideMenu.OnMenuListener menuListener = new ResideMenu.OnMenuListener() {
         @Override
         public void openMenu() {
@@ -41,14 +132,25 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.main);
+        init();
+        setUpMenu();
+        if (savedInstanceState == null) {
+            if (getIntent().getStringExtra(DriverSignInOutActivity.WHO) == DriverSignInOutActivity.TAG_HOME_OWNER) {
 
+            }
+            if (getIntent().getStringExtra(DriverSignInOutActivity.WHO) == DriverSignInOutActivity.TAG_DRIVER) {
+                changeFragment(new FrgDriverMap());
+            }
+            if (getIntent().getStringExtra(DriverSignInOutActivity.WHO) == DriverSignInOutActivity.TAG_NORMAL_USER) {
+                changeFragment(new FrgUserMap());
+            }
+        }
+    }
+
+    private void init() {
         mContext = this;
 
-        setUpMenu();
-        if (savedInstanceState == null)
-            changeFragment(new OrderFragment());
     }
 
     private void setUpMenu() {
@@ -63,56 +165,57 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
         resideMenu.setMenuListener(menuListener);
         //valid scale factor is between 0.0f and 1.0f. leftmenu'width is 150dip.
         resideMenu.setScaleValue(0.6f);
-
-        // create menu items;
-        itemProfile = new ResideMenuItem(this, R.drawable.icon_profile, "Profile");
-        itemSettings = new ResideMenuItem(this, R.drawable.icon_settings, "Settings");
-        itemAboutUs = new ResideMenuItem(this, R.drawable.icon_settings, "About");
-        itemContactUs = new ResideMenuItem(this, R.drawable.icon_settings, "Contact");
-        itemSignout = new ResideMenuItem(this, R.drawable.icon_settings, "SignOut");
+        resideMenu.setShadowVisible(false);
 
 
-        itemProfile.setOnClickListener(this);
-        itemSettings.setOnClickListener(this);
-        itemAboutUs.setOnClickListener(this);
-        itemContactUs.setOnClickListener(this);
-        itemSignout.setOnClickListener(this);
+//        addDriverMenus(
+//                mContext,
+//                Arrays.asList(getResources().getStringArray(R.array.arr_driver_titles)),
+//                getResources().obtainTypedArray(R.array.arr_driver_icons),
+//                listenersDriverMenu
+//        );
+//        changeFragment(new FrgDriverMap());
+////
+//        addUserMenus(
+//                mContext,
+//                Arrays.asList(getResources().getStringArray(R.array.arr_user_titles)),
+//                getResources().obtainTypedArray(R.array.arr_user_icons),
+//                listenersUserMenu
+//
+//        );
+//        changeFragment(new FrgUserMap());
 
+        if (getIntent().hasExtra(DriverSignInOutActivity.WHO)) {
+            // Toast.makeText(mContext, "exist", Toast.LENGTH_SHORT).show();//done
+            // Toast.makeText(mContext, "Menu   " + getIntent().getStringExtra(DriverSignInOutActivity.WHO), Toast.LENGTH_SHORT).show();
+            if (getIntent().getStringExtra(DriverSignInOutActivity.WHO).equals(DriverSignInOutActivity.TAG_NORMAL_USER)) {
+                Toast.makeText(mContext, "", Toast.LENGTH_SHORT).show();
+                addUserMenus(
+                        mContext,
+                        Arrays.asList(getResources().getStringArray(R.array.arr_user_titles)),
+                        getResources().obtainTypedArray(R.array.arr_user_icons),
+                        listenersUserMenu
 
-        resideMenu.addMenuItem(itemProfile, ResideMenu.DIRECTION_LEFT);
-        if (getIntent().getStringExtra(DriverSignInOutActivity.WHO).equalsIgnoreCase("User")) {
-            itemUserTrip = new ResideMenuItem(this, R.drawable.icon_home, "Trip");
-            itemUserHome = new ResideMenuItem(this, R.drawable.icon_calendar, "Rent Home");
+                );
+                changeFragment(new FrgUserMap());
+            }
 
+            if (getIntent().getStringExtra(DriverSignInOutActivity.WHO).equals(DriverSignInOutActivity.TAG_DRIVER)) {
+                addDriverMenus(
+                        mContext,
+                        Arrays.asList(getResources().getStringArray(R.array.arr_driver_titles)),
+                        getResources().obtainTypedArray(R.array.arr_driver_icons),
+                        listenersDriverMenu
+                );
+                changeFragment(new FrgDriverMap());
+            }
 
-            itemUserHome.setOnClickListener(this);
-            itemUserTrip.setOnClickListener(this);
-
-            resideMenu.addMenuItem(itemUserHome, ResideMenu.DIRECTION_LEFT);
-            resideMenu.addMenuItem(itemUserTrip, ResideMenu.DIRECTION_LEFT);
-
+            if (getIntent().getStringExtra(DriverSignInOutActivity.WHO).equals(DriverSignInOutActivity.TAG_HOME_OWNER)) {
+                addHomeOwnerMenus();
+            }
+        } else {
+            //Toast.makeText(mContext, "No extra called "+ DriverSignInOutActivity.WHO, Toast.LENGTH_SHORT).show();//done
         }
-
-
-        if (getIntent().getStringExtra(DriverSignInOutActivity.WHO).equalsIgnoreCase("Driver")) {
-            itemWorkerDriver = new ResideMenuItem(this, R.drawable.icon_home, "Driver");
-            itemWorkerDriver.setOnClickListener(this);
-            resideMenu.addMenuItem(itemWorkerDriver, ResideMenu.DIRECTION_LEFT);
-        }
-
-        if (getIntent().getStringExtra(DriverSignInOutActivity.WHO).equalsIgnoreCase("HomeOwner")) {
-            itemWorkerHome = new ResideMenuItem(this, R.drawable.icon_calendar, "Sell Home");
-            itemWorkerHome.setOnClickListener(this);
-            resideMenu.addMenuItem(itemWorkerHome, ResideMenu.DIRECTION_LEFT);
-        }
-
-
-
-
-        resideMenu.addMenuItem(itemSettings, ResideMenu.DIRECTION_LEFT);
-        resideMenu.addMenuItem(itemAboutUs, ResideMenu.DIRECTION_LEFT);
-        resideMenu.addMenuItem(itemContactUs, ResideMenu.DIRECTION_LEFT);
-        resideMenu.addMenuItem(itemSignout, ResideMenu.DIRECTION_LEFT);
 
 
         // You can disable a direction by setting ->
@@ -132,7 +235,30 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
         });
     }
 
-    public final static String WHO = "WHO";
+    private void addDriverMenus(MenuActivity mContext, List<String> titles, TypedArray icons, View.OnClickListener[] listeners) {
+        for (int i = 0; i < titles.size(); i++) {
+            ResideMenuItem resideMenuItem = new ResideMenuItem(mContext, icons.getResourceId(i, -1), titles.get(i));
+            resideMenuItem.setOnClickListener(listeners[i]);
+            resideMenu.addMenuItem(resideMenuItem, ResideMenu.DIRECTION_LEFT);
+
+        }
+    }
+
+
+    private void addHomeOwnerMenus() {
+
+
+    }
+
+    private void addUserMenus(Context context, List<String> titles, TypedArray icons, View.OnClickListener[] onClickListeners) {
+        for (int i = 0; i < titles.size(); i++) {
+            ResideMenuItem resideMenuItem = new ResideMenuItem(context, icons.getResourceId(i, -1), titles.get(i));
+            resideMenuItem.setOnClickListener(onClickListeners[i]);
+            resideMenu.addMenuItem(resideMenuItem, ResideMenu.DIRECTION_LEFT);
+
+        }
+
+    }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
@@ -141,53 +267,7 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
 
     @Override
     public void onClick(View view) {
-
-        if (view == itemUserHome) {
-            Intent intent = new Intent(MenuActivity.this, UserMapActvity.class);
-            intent.putExtra(WHO, "SearchForHome");
-            startActivity(intent);
-        }
-
-        if (view == itemUserTrip) {
-            Intent intent = new Intent(MenuActivity.this, UserMapActvity.class);
-            intent.putExtra(WHO, "Trip");
-            startActivity(intent);
-        }
-
-        if (view == itemWorkerDriver) {
-            Intent intent = new Intent(MenuActivity.this, WorkerMapActvity.class);
-            intent.putExtra(WHO, "Driver");
-            startActivity(intent);
-        }
-
-        if (view == itemWorkerHome) {
-            Intent intent = new Intent(MenuActivity.this, WorkerMapActvity.class);
-            intent.putExtra(WHO, "HomeOwner");
-            startActivity(intent);
-        }
-
-
-        if (view == itemAboutUs) {
-            changeFragment(new AboutUsFragment());
-        }
-
-        if (view == itemContactUs) {
-            changeFragment(new ContactUsFragment());
-        }
-
-        if (view == itemSettings) {
-            changeFragment(new SettingsFragment());
-        }
-        if (view == itemSignout) {
-            finish();
-        }
-
-        if (view == itemProfile) {
-            changeFragment(new ProfileFragment());
-        }
-
-
-        resideMenu.closeMenu();
+        //resideMenu.closeMenu();
     }
 
     private void changeFragment(Fragment targetFragment) {
@@ -197,6 +277,11 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
                 .replace(R.id.main_fragment, targetFragment, "fragment")
                 .setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit();
+
+        if (resideMenu.isOpened()) {
+            resideMenu.closeMenu();
+        }
+
     }
 
     // What good method is to access resideMenu？

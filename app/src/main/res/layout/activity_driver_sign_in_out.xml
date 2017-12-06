@@ -16,20 +16,20 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="50"
+            android:layout_weight="100"
             android:scaleType="centerCrop"
-            android:src="@drawable/uber_deiver"
+            android:id="@+id/ivBgStart"
 
             />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="50"
-            android:scaleType="centerCrop"
-            android:src="@drawable/home_owner"
+        <!--<ImageView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_weight="50"-->
+        <!--android:scaleType="centerCrop"-->
+        <!--android:src="@drawable/home_owner"-->
 
-            />
+        <!--/>-->
     </LinearLayout>
 
 
@@ -74,7 +74,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_marginBottom="30dp"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:weightSum="100"
 
             >

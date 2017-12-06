@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:padding="10dp"
+            android:text="التقط صورة للمستندات لديك"
+            android:textAllCaps="true"
+            android:textSize="23sp"
+            android:textStyle="bold"
+
+            />
+
+        <!--<TextView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:gravity="start"-->
+        <!--android:padding="10dp"-->
+        <!--android:text="Ensure all information is readable and not blurry. Make sure that all corners of the document are visible. Your document may not be accepted if it cannot be read properly or all four corners are not visible."-->
+        <!--android:textAllCaps="true"-->
+        <!--android:textSize="16sp"-->
+
+        <!--/>-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:textDirection="rtl"
+            android:padding="10dp"
+            android:text="        تأكد من أن جميع المعلومات مقروءة وليست باهتة.  تأكد من أن كل أركان الوثيقة ظاهرة. قد لا يتم قبول مستندك إذا كان من غير الممكن قراءته بشكل صحيح أو إذا كانت زواياه الأربع غير واضحه"
+            android:textAllCaps="true"
+            android:textSize="16sp"
+
+            />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
+            android:visibility="gone"
+            android:id="@+id/llStep1"
+
+            >
+
+            <ImageView
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center_horizontal"
+                android:id="@+id/ivStep1"
+                android:scaleType="centerCrop"
+                android:visibility="visible" />
+
+            <TextView
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="Edit"
+                android:gravity="center"
+                android:padding="10dp"
+                android:background="@color/md_grey_500"
+                android:textStyle="bold"
+                android:textSize="17sp"
+                android:id="@+id/tvStep1Edit" />
+        </LinearLayout>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/button_selector"
+
+            android:drawableLeft="@drawable/file_upload"
+            android:drawablePadding="10dp"
+            android:paddingLeft="10dp"
+            android:text="attach photo from device "
+            android:id="@+id/btnStep1FileUpload"
+            android:textAllCaps="true"
+
+
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/button_selector"
+
+            android:drawableLeft="@drawable/file_upload"
+            android:drawablePadding="10dp"
+            android:paddingLeft="10dp"
+            android:text="Upload Now"
+            android:id="@+id/btnStep1UploadNow"
+            android:textAllCaps="true"
+
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+
+</LinearLayout>

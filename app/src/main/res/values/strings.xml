@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">In_A_Click</string>
+    <string name="app_name">In A Click</string>
     <string name="title_activity_map_tracking_actvity">Map</string>
     <string name="ok">OK</string>
     <string name="title_location_permission">Warning</string>
@@ -23,6 +23,89 @@
 
     <string name="fb_app_id20130074">1998556493759923</string>
     <string name="place_picker_api_key">AIzaSyAPvNmlpIwuzinDyox39qIgSmfkAh2Mg54</string>
+
+
+    <string-array name="arr_user_titles">
+        <item>Profile</item>
+        <item>Map</item>
+        <item>Trips</item>
+        <item>Homes</item>
+        <item>Settings</item>
+        <item>SignOut</item>
+    </string-array>
+
+    <string-array name="arr_driver_titles">
+        <item>Profile</item>
+        <item>Map</item>
+        <item>Trips</item>
+        <item>Vehicles</item>
+        <item>Settings</item>
+        <item>SignOut</item>
+    </string-array>
+
+    <string-array name="arr_homeowner_titles">
+        <item>Profile</item>
+        <item>Map</item>
+        <item>Deals</item>
+        <item>Homes</item>
+        <item>Settings</item>
+        <item>SignOut</item>
+    </string-array>
+
+
+    <string name="sign_in">Sign in</string>
+
+    <string name="inbox">Inbox</string>
+    <string name="starred">Starred</string>
+    <string name="sent_mail">Sent Mail</string>
+    <string name="drafts">Drafts</string>
+    <string name="categories">Categories</string>
+    <string name="trash">Trash</string>
+    <string name="spam">Spam</string>
+    <string name="settings">Settings</string>
+
+    <string name="add">Add</string>
+    <string name="search">Search</string>
+
+    <string name="important">Important</string>
+    <string name="documents">Documents</string>
+
+    <!-- Toast -->
+    <string name="open_user_profile">Open user profile</string>
+    <string name="open_settings">Open settings</string>
+    <string name="set_location_on_map">Set location on map</string>
+
+
+    <string-array name="titles_cars">
+        <item>عائليه</item>
+        <item>فاخره</item>
+        <item>إقتصاديه</item>
+        <item>ذوي الاحتياجات الخاصه</item>
+        <item>ونش</item>
+        <item>سيارة نقل</item>
+    </string-array>
+    <string-array name="titles_homes">
+        <item>غرفه</item>
+        <item>مزرعه</item>
+        <item>فيلا</item>
+        <item>شقه</item>
+        <item>شاليه</item>
+    </string-array>
+
+    <string name="add_new_location">Add new location</string>
+    <string name="location_list">Locations</string>
+    <string name="need_location_permission_message">You need to enable location permissions first</string>
+    <string name="location_permissions_granted_message">Location Permissions Granted</string>
+    <string name="setting_enabled" translatable="false">EnabledSetting</string>
+    <string name="settings_label">Settings</string>
+    <string name="location_permissions">Location Permissions</string>
+    <string name="enable_geofences">Enable Geofences</string>
+    <string name="privacy">http://www.google.com/policies/privacy</string>
+    <string name="ringer_permissions">Ringer Permissions</string>
+    <string name="silent_mode_activated">Silent mode activated</string>
+    <string name="touch_to_relaunch">Touch to launch the app.</string>
+    <string name="back_to_normal">Back to normal</string>
+    <string name="chips_add_rem">Add categories of your vehicle   feel free to add/remove what you want</string>
 
 
 </resources>

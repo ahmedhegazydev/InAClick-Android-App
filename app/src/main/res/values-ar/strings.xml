@@ -20,4 +20,5 @@
     <string name="aboutUs">عن الشركه</string>
     <string name="contactUs">تواصل معنا</string>
     <string name="google_direction_api">AIzaSyAPvNmlpIwuzinDyox39qIgSmfkAh2Mg54</string>
+    <string name="set_location_on_map">Set location on map</string>
 </resources>
