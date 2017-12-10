@@ -134,18 +134,18 @@ dependencies {
 //    compile 'com.google.android.gms:play-services-places:11.4.2'
 //    compile 'com.google.android.gms:play-services-auth:11.4.2'
 //    compile 'com.google.android.gms:play-services-ads:11.4.2'
-    compile 'com.google.android.gms:play-services:11.6.0'
+    compile 'com.google.android.gms:play-services:11.6.2'
 
 
     compile 'com.firebaseui:firebase-ui-auth:1.2.0'
     compile 'com.firebaseui:firebase-ui-database:1.2.0'
-    compile 'com.google.firebase:firebase-analytics:11.6.0'
-    compile 'com.google.firebase:firebase-database:11.6.0'
-    compile 'com.google.firebase:firebase-storage:11.6.0'
-    compile 'com.google.firebase:firebase-auth:11.6.0'
-    compile 'com.google.firebase:firebase-config:11.6.0'
-    compile 'com.google.firebase:firebase-messaging:11.6.0'
-    compile 'com.google.firebase:firebase-crash:11.6.0'
+    compile 'com.google.firebase:firebase-analytics:11.6.2'
+    compile 'com.google.firebase:firebase-database:11.6.2'
+    compile 'com.google.firebase:firebase-storage:11.6.2'
+    compile 'com.google.firebase:firebase-auth:11.6.2'
+    compile 'com.google.firebase:firebase-config:11.6.2'
+    compile 'com.google.firebase:firebase-messaging:11.6.2'
+    compile 'com.google.firebase:firebase-crash:11.6.2'
     //    compile 'com.firebase:geofire-android:2.1.3'
     compile 'com.firebase:geofire-android:2.0.0'
 
@@ -161,7 +161,7 @@ dependencies {
 
     compile 'com.rengwuxian.materialedittext:library:2.1.4'
     compile 'uk.co.chrisjenx:calligraphy:2.3.0'
-    compile 'com.jakewharton:butterknife:8.6.0'
+    compile 'com.jakewharton:butterknife:8.7.0'
     compile 'com.maksim88:PasswordEditText:v0.9'
     compile 'com.github.d-max:spots-dialog:0.7@aar'
     testCompile 'junit:junit:4.12'
@@ -177,7 +177,7 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-scalars:2.3.0'
     compile 'com.android.volley:volley:1.0.0'
 
-    //compile 'com.android.support:support-v4:+'
+    compile  'com.android.support:support-v4:27.0.1'
 
 //    compile 'com.facebook.android:facebook-login:[4,5)'
     compile 'com.facebook.android:facebook-android-sdk:4.27.0'
@@ -226,6 +226,19 @@ dependencies {
     //android chips
     compile "com.hootsuite.android:nachos:1.1.1"
 
+    //percent progress bar
+    compile 'com.mikhaellopez:circularprogressbar:1.1.1'
+
+//    If you want to test recent bug fixes or features that have not been packaged in an
+//    official release yet, you can use a -SNAPSHOT release of the current development version of the
+//    Mapbox Navigation SDK via Gradle, available on Sonatype.
+//    compile 'com.mapbox.mapboxsdk:mapbox-android-navigation:0.7.2-SNAPSHOT'
+    // Mapbox Navigation SDK for Android
+    compile 'com.mapbox.mapboxsdk:mapbox-android-navigation:0.7.1'
+    compile 'com.mapbox.mapboxsdk:mapbox-android-sdk:5.2.1'
+
+    compile 'com.github.jd-alexander:library:1.1.0'
+
 
 }
 apply plugin: 'com.google.gms.google-services'
@@ -239,4 +252,4 @@ configurations.all {
         }
     }
 }
-
+//

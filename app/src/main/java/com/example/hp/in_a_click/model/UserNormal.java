@@ -18,6 +18,7 @@ public class UserNormal {
     String userName;
     String userPhone;
     String city = "";
+    String driverId = "";
 
     public UserNormal(String userEmail, String userPass, String userName, String userPhone) {
         this.userEmail = userEmail;

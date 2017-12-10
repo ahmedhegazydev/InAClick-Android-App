@@ -25,6 +25,10 @@ import com.example.hp.in_a_click.frg_user.FrgUserProfile;
 import com.example.hp.in_a_click.frg_user.FrgUserSettings;
 import com.example.hp.in_a_click.frg_user.FrgUserTrips;
 import com.example.hp.in_a_click.signinout.DriverSignInOutActivity;
+import com.firebase.geofire.GeoFire;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.special.ResideMenu.ResideMenu;
 import com.special.ResideMenu.ResideMenuItem;
 
@@ -70,8 +74,10 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
             new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //removeGeoFire();
                     finish();
                     startActivity(new Intent(mContext, DriverSignInOutActivity.class));
+                    //FirebaseAuth.getInstance().signOut();
                 }
             }
     };
@@ -109,11 +115,40 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
             new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    removeGeoFire();
+                    /// FirebaseAuth.getInstance().signOut();
                     finish();
                     startActivity(new Intent(mContext, DriverSignInOutActivity.class));
+
                 }
             }
     };
+
+    private void removeGeoFire() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference refDriversGeoFire = FirebaseDatabase.getInstance().getReference("DriversAvailable");
+        GeoFire geoFire = new GeoFire(refDriversGeoFire);
+        geoFire.removeLocation(userId);
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        removeGeoFire();//for driver
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        removeGeoFire();//for driver
+    }
+
     private ResideMenu.OnMenuListener menuListener = new ResideMenu.OnMenuListener() {
         @Override
         public void openMenu() {

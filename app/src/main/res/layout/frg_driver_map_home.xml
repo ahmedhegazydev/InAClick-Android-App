@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:mapbox="http://schemas.android.com/tools"
     android:id="@+id/rlMainView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,9 +14,8 @@
         android:id="@+id/status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="visible"
         android:background="@color/md_indigo_200"
-        >
+        android:visibility="visible">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -56,14 +56,15 @@
                 />
         </RelativeLayout>
     </LinearLayout>
+
     <ProgressBar
         android:id="@+id/pbChangeStatusDriver"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/status"
-        android:visibility="gone"
-        android:indeterminateOnly="true"/>
+        android:indeterminateOnly="true"
+        android:visibility="gone" />
 
 
     <com.google.android.gms.maps.MapView
@@ -72,5 +73,32 @@
         android:layout_height="match_parent"
         android:layout_below="@id/pbChangeStatusDriver" />
 
+    <include
+        android:id="@+id/layoutProgressDriverHaveWork"
+        layout="@layout/notice_progress"
+        android:visibility="gone"
+
+        />
+
+    <include
+        android:id="@+id/layoutCustomerInfo"
+        layout="@layout/layout_customer_info"
+        android:visibility="visible"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+
+
+        />
+    <!--<com.mapbox.mapboxsdk.maps.MapView-->
+    <!--android:id="@+id/mapViewNavigation"-->
+    <!--android:layout_below="@id/status"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--mapbox:mapbox_cameraTargetLat="40.73581"-->
+    <!--mapbox:mapbox_cameraTargetLng="-73.99155"-->
+    <!--android:visibility="gone"-->
+    <!--mapbox:mapbox_styleUrl="mapbox://styles/mapbox/streets-v10"-->
+    <!--mapbox:mapbox_cameraZoom="11" />-->
 
 </RelativeLayout>

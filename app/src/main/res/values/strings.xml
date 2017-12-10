@@ -106,6 +106,7 @@
     <string name="touch_to_relaunch">Touch to launch the app.</string>
     <string name="back_to_normal">Back to normal</string>
     <string name="chips_add_rem">Add categories of your vehicle   feel free to add/remove what you want</string>
-
+    <string name="mapbox_access_token">pk.eyJ1IjoiYWhtZWRoYW1tb2R5MjA1MCIsImEiOiJjamF6NTc4aXMxYTN2MndzaHRuMTBtM2xpIn0.E9_LMjVptaFRb_dc9qMHeQ</string>
+    <string name="cancelReq">You can cancel request   If u want</string>
 
 </resources>

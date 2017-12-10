@@ -48,7 +48,7 @@
             android:textColor="#FFFFFF"
             android:textSize="19sp"
             android:textStyle="bold"
-            android:visibility="visible"
+            android:visibility="gone"
 
 
             />

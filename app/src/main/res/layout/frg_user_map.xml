@@ -567,9 +567,12 @@
         <include
             android:id="@+id/llAddHomeWork"
             layout="@layout/add_home"
-            android:visibility="gone"
+            android:visibility="gone" />
 
-            />
+        <include
+            layout="@layout/layout_cancel_request"
+            android:id="@+id/userCancelRequest"
+            android:visibility="gone" />
     </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>

@@ -66,6 +66,12 @@ import me.drozdzynski.library.steppers.interfaces.OnFinishAction;
 
 public class FrgDriverVehicles extends Fragment {
 
+    public final static String CAT_FAMILY = "CAT_FAMILY";
+    public final static String CAT_HIGH = "CAT_HIGH";
+    public final static String CAT_CHEAP = "CAT_CHEAP";
+    public final static String CAT_NEEDS = "CAT_NEEDS";
+    public final static String CAT_WENSH = "CAT_WENSH";
+    public final static String CAT_TRANSPORT = "CAT_TRANSPORT";
     Context context = null;
     boolean b = false;
     SteppersItem item1, item2, item3, item4, item5;
@@ -139,7 +145,7 @@ public class FrgDriverVehicles extends Fragment {
         addIndicatorView();
         initFabAddNewVeh();
         initBtnOpenMenu();
-        activateCarOwner();
+        //activateCarOwner();
 
         return parentView;
     }
@@ -215,7 +221,6 @@ public class FrgDriverVehicles extends Fragment {
                 //otherwise
                 //showPreviewBeforeUpload();
 
-                activateCarOwner();
 
             }
         });
@@ -355,17 +360,17 @@ public class FrgDriverVehicles extends Fragment {
 //                } else {
 //                    showMessage("Please, upload photo then continue");
 //                }
+                activateCarOwner();
             }
         });
         item5.setPositiveButtonEnable(true);
         //item5.setSubLabel(getResources().getString(R.string.chips_add_rem));
 
-
+        steps.add(item5);
         steps.add(item1);
         steps.add(item2);
         steps.add(item3);
         steps.add(item4);
-        steps.add(item5);
 
 
         steppersView.setConfig(steppersViewConfig);
@@ -390,6 +395,7 @@ public class FrgDriverVehicles extends Fragment {
                 if (dataSnapshot.hasChildren()) {
                     UserDriver userDriver = dataSnapshot.getValue(UserDriver.class);
 
+
                     //edit the current user driver if exists
                     assert userDriver != null;
                     refDrivers.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
@@ -399,11 +405,11 @@ public class FrgDriverVehicles extends Fragment {
                                             userDriver.getUserName(),
                                             userDriver.getUserPhone(),
                                             userDriver.getCity(),
-//                                            ((Step5AddCat) item5.getFragment()).getSpinnerModelNumber().getSelectedItem().toString(),
-//                                            ((Step5AddCat) item5.getFragment()).getSpinnerCatName().getSelectedItem().toString(),
-                                            "2010",
-                                            "ونش",
-                                            true
+                                            ((Step5AddCat) item5.getFragment()).getSpinnerModelNumber().getSelectedItem().toString(),
+                                            getCatNameFromSpinner(),
+//                                            "2010",
+//                                            "ونش",
+                                            userDriver.isDriverStatus()
                                     )
                             )
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -422,6 +428,35 @@ public class FrgDriverVehicles extends Fragment {
         });
 
 
+    }
+
+    private String getCatNameFromSpinner() {
+        //((Step5AddCat) item5.getFragment()).getSpinnerModelNumber().getSelectedItem().toString()
+        String tagKnickName = "";
+        int pos = ((Step5AddCat) item5.getFragment()).getSpinnerCatName().getSelectedItemPosition();
+        switch (pos) {
+            case 0:
+                tagKnickName = CAT_FAMILY;
+                break;
+            case 1:
+                tagKnickName = CAT_HIGH;
+                break;
+            case 2:
+                tagKnickName = CAT_CHEAP;
+                break;
+            case 3:
+                tagKnickName = CAT_NEEDS;
+                break;
+            case 4:
+                tagKnickName = CAT_WENSH;
+                break;
+            case 5:
+                tagKnickName = CAT_TRANSPORT;
+                break;
+            default:
+                break;
+        }
+        return tagKnickName;
     }
 
     public Uri getFilePath1() {

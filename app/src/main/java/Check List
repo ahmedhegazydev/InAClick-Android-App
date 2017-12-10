@@ -38,3 +38,7 @@ Suggestion: add 'tools:replace="android:value"' to <meta-data> element at Androi
 5-Designing of the possibility of Adding Work/Home/Saved places/Enter destination later/Set location on map UI
 6-Createing a custom auto place picker using web services then user can select from fetched locations
 7-implementing add home
+==========================================
+نقدر نبعت كود ليه بعد اما يتم قبوله بالنسبه للرايفر
+يتم اختيار اقرب عربيه اونلاين بوجود 10تواني واذا لم يستجيب يتم احضار اللي بعده ابعد منه وهكذا
+

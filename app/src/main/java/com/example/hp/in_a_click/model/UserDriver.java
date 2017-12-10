@@ -12,8 +12,11 @@ public class UserDriver {
     private String userName;
     private String userPhone;
     private String city = "";
-    ///---------
     String carModelNumber = "";
+    String carCatName = "";
+    boolean driverStatus = false;//by default
+    String passengerId = "";
+
 
     public UserDriver(String userEmail, String userPass, String userName, String userPhone, String city, String carModelNumber, String carCatName, boolean driverStatus) {
         this.userEmail = userEmail;
@@ -26,7 +29,17 @@ public class UserDriver {
         this.driverStatus = driverStatus;
     }
 
-    String carCatName = "";
+    public UserDriver() {
+    }
+
+    public UserDriver(String userEmail, String userPass, String userName, String userPhone, String city, boolean driverStatus) {
+        this.userEmail = userEmail;
+        this.userPass = userPass;
+        this.userName = userName;
+        this.userPhone = userPhone;
+        this.city = city;
+        this.driverStatus = driverStatus;
+    }
 
     public String getCarModelNumber() {
         return carModelNumber;
@@ -50,22 +63,6 @@ public class UserDriver {
 
     public void setCity(String city) {
         this.city = city;
-    }
-
-    boolean driverStatus = false;//by default
-
-
-    public UserDriver() {
-    }
-
-
-    public UserDriver(String userEmail, String userPass, String userName, String userPhone, String city, boolean driverStatus) {
-        this.userEmail = userEmail;
-        this.userPass = userPass;
-        this.userName = userName;
-        this.userPhone = userPhone;
-        this.city = city;
-        this.driverStatus = driverStatus;
     }
 
     public String getUserEmail() {

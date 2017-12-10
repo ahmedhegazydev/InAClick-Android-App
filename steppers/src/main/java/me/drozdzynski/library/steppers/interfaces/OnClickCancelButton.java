@@ -5,5 +5,5 @@ package me.drozdzynski.library.steppers.interfaces;
  */
 
 public interface OnClickCancelButton {
-    public void onClick();
+    void onClick();
 }

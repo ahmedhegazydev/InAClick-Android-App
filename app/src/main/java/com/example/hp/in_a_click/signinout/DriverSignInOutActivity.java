@@ -1319,8 +1319,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         //btnSIgnIn.setEnabled(false);
         waitLogin.show();
 
-
-        firebaseAuth.signInWithEmailAndPassword(etEmail.getText().toString(), etPass.getText().toString())
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(etEmail.getText().toString(), etPass.getText().toString())
                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult authResult) {
@@ -1345,7 +1344,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //                            checkIfEmailVerified(task);
 //                        }
 
-                        if (task.isComplete()) {
+                        if (task.isComplete() && task.isSuccessful()) {
                             Intent intent = new Intent(DriverSignInOutActivity.this, MenuActivity.class);
                             if (cbUserLogin.isChecked()) {
                                 intent.putExtra(WHO, TAG_NORMAL_USER);
@@ -3065,10 +3064,10 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
     protected void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-        updateUI(currentUser);
-
-        firebaseAuth.addAuthStateListener(authStateListener);
+//        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+//        updateUI(currentUser);
+//
+//        firebaseAuth.addAuthStateListener(authStateListener);
 
 //        if (mVerificationInProgress && validatePhoneNumber()) {
 //            startPhoneNumberVerification(etPhoneNumber.getText().toString());
