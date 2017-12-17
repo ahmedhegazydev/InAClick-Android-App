@@ -10,7 +10,9 @@ import com.example.hp.in_a_click.R;
  * Created by hp on 10/31/2017.
  */
 
-public class ListOnlineHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+public class ListOnlineHolder extends RecyclerView.ViewHolder implements
+        View.OnClickListener,
+        View.OnLongClickListener {
 
     private static ClickListener clickListener;
     TextView tvUserEmail = null;
@@ -22,7 +24,8 @@ public class ListOnlineHolder extends RecyclerView.ViewHolder implements View.On
         itemView.setOnLongClickListener(this);
 
 
-        tvUserEmail = itemView.findViewById(R.id.tvUserEmail);
+//        tvUserEmail = itemView.findViewById(R.id.tvUserEmail);
+
 
 
     }

@@ -30,12 +30,6 @@
     <!--</style>-->
 
 
-    <style name="fragment_text">
-        <item name="android:textColor">#ffacacac</item>
-        <item name="android:textSize">25sp</item>
-    </style>
-
-
     <style name="FacebookLoginButton">
         <!--<item name="android:textSize">@dimen/smallTxtSize</item>-->
         <!--<item name="android:background">@drawable/facebook_signin_btn</item>-->

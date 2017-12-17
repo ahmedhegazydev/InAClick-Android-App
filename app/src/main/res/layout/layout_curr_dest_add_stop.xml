@@ -120,7 +120,6 @@
                         android:weightSum="100">
 
                         <TextView
-                            android:id="@+id/etDest1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_weight="90"
@@ -151,7 +150,6 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/llDest2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/llDest1"
@@ -195,7 +193,6 @@
                         android:weightSum="100">
 
                         <TextView
-                            android:id="@+id/tvDest2"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_weight="90"
@@ -220,7 +217,6 @@
                 android:background="@color/md_blue_grey_100" />
 
             <View
-                android:id="@+id/line2"
                 android:layout_width="2dp"
                 android:layout_height="36dp"
                 android:layout_marginLeft="14dp"

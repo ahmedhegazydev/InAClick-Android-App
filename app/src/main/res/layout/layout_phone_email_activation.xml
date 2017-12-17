@@ -20,7 +20,6 @@
             android:id="@+id/tilEmailCode">
 
             <EditText
-                android:id="@+id/etEmailCode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
@@ -42,7 +41,6 @@
             android:hint="Enter phone verification code">
 
             <EditText
-                android:id="@+id/etPhoneCode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"

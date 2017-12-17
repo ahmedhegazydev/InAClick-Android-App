@@ -76,8 +76,9 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
                 public void onClick(View v) {
                     //removeGeoFire();
                     finish();
+                    FirebaseAuth.getInstance().signOut();
                     startActivity(new Intent(mContext, DriverSignInOutActivity.class));
-                    //FirebaseAuth.getInstance().signOut();
+
                 }
             }
     };
@@ -115,9 +116,9 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
             new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    removeGeoFire();
-                    /// FirebaseAuth.getInstance().signOut();
+                    //removeGeoFire();
                     finish();
+                    FirebaseAuth.getInstance().signOut();
                     startActivity(new Intent(mContext, DriverSignInOutActivity.class));
 
                 }
@@ -140,24 +141,24 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
     @Override
     protected void onStop() {
         super.onStop();
-        removeGeoFire();//for driver
+       // removeGeoFire();//for driver
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        removeGeoFire();//for driver
+        //removeGeoFire();//for driver
     }
 
     private ResideMenu.OnMenuListener menuListener = new ResideMenu.OnMenuListener() {
         @Override
         public void openMenu() {
-            Toast.makeText(mContext, "Menu is opened!", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(mContext, "Menu is opened!", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void closeMenu() {
-            Toast.makeText(mContext, "Menu is closed!", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(mContext, "Menu is closed!", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -224,7 +225,7 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
             // Toast.makeText(mContext, "exist", Toast.LENGTH_SHORT).show();//done
             // Toast.makeText(mContext, "Menu   " + getIntent().getStringExtra(DriverSignInOutActivity.WHO), Toast.LENGTH_SHORT).show();
             if (getIntent().getStringExtra(DriverSignInOutActivity.WHO).equals(DriverSignInOutActivity.TAG_NORMAL_USER)) {
-                Toast.makeText(mContext, "", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(mContext, "", Toast.LENGTH_SHORT).show();
                 addUserMenus(
                         mContext,
                         Arrays.asList(getResources().getStringArray(R.array.arr_user_titles)),
@@ -256,18 +257,18 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
         // You can disable a direction by setting ->
         // resideMenu.setSwipeDirectionDisable(ResideMenu.DIRECTION_RIGHT);
 
-        findViewById(R.id.title_bar_left_menu).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnOpenMenu).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 resideMenu.openMenu(ResideMenu.DIRECTION_LEFT);
             }
         });
-        findViewById(R.id.title_bar_right_menu).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                resideMenu.openMenu(ResideMenu.DIRECTION_RIGHT);
-            }
-        });
+//        findViewById(R.id.title_bar_right_menu).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                resideMenu.openMenu(ResideMenu.DIRECTION_RIGHT);
+//            }
+//        });
     }
 
     private void addDriverMenus(MenuActivity mContext, List<String> titles, TypedArray icons, View.OnClickListener[] listeners) {

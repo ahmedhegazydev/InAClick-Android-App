@@ -368,7 +368,7 @@ public class FrgDriverVehicles extends Fragment {
 
         steps.add(item5);
         steps.add(item1);
-        steps.add(item2);
+
         steps.add(item3);
         steps.add(item4);
 

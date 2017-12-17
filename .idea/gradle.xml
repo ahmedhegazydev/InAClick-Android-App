@@ -11,7 +11,6 @@
             <option value="$PROJECT_DIR$/ResideMenu" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/steppers" />
-            <option value="$PROJECT_DIR$/sweetsheet" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

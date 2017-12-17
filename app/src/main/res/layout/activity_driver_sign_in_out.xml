@@ -55,7 +55,9 @@
                 android:text="In A Click"
                 android:textColor="#FFFFFF"
                 android:textSize="40sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:visibility="gone"
+                />
 
             <TextView
 
@@ -65,7 +67,10 @@
                 android:gravity="center"
                 android:text="PARTNER"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                android:visibility="gone"
+
+                />
         </LinearLayout>
 
         <LinearLayout

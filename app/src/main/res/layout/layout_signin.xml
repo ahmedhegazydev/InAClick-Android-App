@@ -133,12 +133,13 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="2dp"
             android:layout_marginRight="2dp"
-            android:background="@drawable/indicator"
+            android:background="@color/md_grey_200"
             android:gravity="left"
             android:paddingLeft="10dp"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:text="Login  as "
+            android:visibility="gone"
             android:textColor="@android:color/darker_gray"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -148,6 +149,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:orientation="horizontal">
 
 

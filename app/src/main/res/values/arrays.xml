@@ -22,14 +22,6 @@
         <item>@drawable/icon_settings</item>
         <item>@drawable/icon_profile</item>
     </integer-array>
-    <integer-array name="arr_homeowner_icons">
-        <item>@drawable/icon_home</item>
-        <item>@drawable/icon_calendar</item>
-        <item>@drawable/icon_settings</item>
-        <item>@drawable/icon_profile</item>
-        <item>@drawable/icon_settings</item>
-        <item>@drawable/icon_profile</item>
-    </integer-array>
 
     <integer-array name="arr_homes_icons">
         <item>@drawable/co4</item>

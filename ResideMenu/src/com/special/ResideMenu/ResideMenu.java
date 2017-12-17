@@ -117,11 +117,9 @@ public class ResideMenu extends FrameLayout {
 
         imageViewShadow = (ImageView) findViewById(R.id.iv_shadow);
         imageViewBackground = (ImageView) findViewById(R.id.iv_background);
-
-
         Glide.with(context)
-                //.load(R.drawable.map_with_icons)
-                .load(R.drawable.map_with_icons)
+                .load(R.drawable.map)
+//                .load(R.drawable.map_with_icons)
                 //.centerCrop()
                 .into(imageViewBackground);
 

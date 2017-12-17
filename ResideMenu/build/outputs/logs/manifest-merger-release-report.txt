@@ -1,0 +1,37 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:2:1-7:12
+INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:2:1-7:12
+INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:2:1-7:12
+INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:2:1-7:12
+INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:2:1-7:12
+INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:2:1-7:12
+INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:2:1-7:12
+	package
+		ADDED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:3:11-43
+		INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml
+		INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml
+	android:versionName
+		ADDED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:5:11-36
+		INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml
+		INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml
+	xmlns:android
+		ADDED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:2:11-69
+	android:versionCode
+		ADDED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:4:11-34
+		INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml
+		INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml
+uses-sdk
+ADDED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:6:5-42
+INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:6:5-42
+INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:6:5-42
+INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:6:5-42
+INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:6:5-42
+	android:targetSdkVersion
+		INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml
+		ADDED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:6:5-42
+		INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml
+	android:minSdkVersion
+		ADDED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml:6:15-40
+		INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml
+		INJECTED from /home/ahmed/Desktop/In_A_Click/ResideMenu/AndroidManifest.xml

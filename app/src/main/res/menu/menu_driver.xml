@@ -20,9 +20,7 @@
         android:id="@+id/driverVisibleAllDrivers"
         />
     <item
-        android:title="SignOut"
-        android:id="@+id/driverSignout"
-        />
+        android:title="SignOut" />
 
 
 

@@ -9,22 +9,5 @@
         <item>Closest</item>
     </array>
 
-    <array name="colors">
-        <item>#ffecd2</item>
-        <item>#9fc7ff</item>
-        <item>#ff9fc7</item>
-        <item>#f7ff9f</item>
-        <item>#f7ff9f</item>
-    </array>
-
-    <array name="images">
-        <item>@drawable/cheapest</item>
-        <item>@drawable/fast</item>
-        <item>@drawable/biggest</item>
-        <item>@drawable/high_quality</item>
-        <item>@drawable/closer</item>
-
-    </array>
-
 
 </resources>

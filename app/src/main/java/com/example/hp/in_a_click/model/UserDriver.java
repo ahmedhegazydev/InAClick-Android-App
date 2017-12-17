@@ -15,10 +15,28 @@ public class UserDriver {
     String carModelNumber = "";
     String carCatName = "";
     boolean driverStatus = false;//by default
+    String userType = "";//user normal
+
     String passengerId = "";
+    String destination = "";
+    String destLat = "";
+    String destLon= "";
+    String service = "";//uber-x or uber-XL or .....
+    String photoUrl= "";
 
+    public UserDriver(String userEmail, String userPass, String userName,
+                      String userPhone, String city, boolean driverStatus, String userType) {
+        this.userEmail = userEmail;
+        this.userPass = userPass;
+        this.userName = userName;
+        this.userPhone = userPhone;
+        this.city = city;
+        this.driverStatus = driverStatus;
+        this.userType = userType;
+    }
 
-    public UserDriver(String userEmail, String userPass, String userName, String userPhone, String city, String carModelNumber, String carCatName, boolean driverStatus) {
+    public UserDriver(String userEmail, String userPass, String userName, String userPhone,
+                      String city, String carModelNumber, String carCatName, boolean driverStatus) {
         this.userEmail = userEmail;
         this.userPass = userPass;
         this.userName = userName;

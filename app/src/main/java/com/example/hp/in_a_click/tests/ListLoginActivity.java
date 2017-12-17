@@ -163,40 +163,40 @@ public class ListLoginActivity extends AppCompatActivity implements GoogleApiCli
     }
 
     private void updateList() {
-        adapter = new FirebaseRecyclerAdapter<User, ListOnlineHolder>(User.class, R.layout.recycler_view_item, ListOnlineHolder.class, counterRef) {
-            @Override
-            protected void populateViewHolder(ListOnlineHolder viewHolder, final User model, int position) {
-
-                viewHolder.tvUserEmail.setText(model.getEmail());
-                viewHolder.setOnItemClickListener(new ListOnlineHolder.ClickListener() {
-                    @Override
-                    public void onItemClick(int position, View v) {
-                        // Toast.makeText(ListLoginActivity.this, "clicked", Toast.LENGTH_SHORT).show();
-                        if (!model.getEmail().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
-                            if (FirebaseAuth.getInstance().getCurrentUser() != null && location != null) {
-                                Intent intentMap = new Intent(ListLoginActivity.this, MapTrackingActvity.class);
-                                intentMap.putExtra("email", model.getEmail());
-                                intentMap.putExtra("lat", location.getLatitude());
-                                intentMap.putExtra("lon", location.getLongitude());
-                                startActivity(intentMap);
-
-                            }
-                        }
-
-
-                    }
-
-                    @Override
-                    public void onItemLongClick(int position, View v) {
-
-                    }
-                });
-
-
-            }
-        };
-        recyclerViewListOnlineUsers.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
+//        adapter = new FirebaseRecyclerAdapter<User, ListOnlineHolder>(User.class, R.layout.recycler_view_item, ListOnlineHolder.class, counterRef) {
+//            @Override
+//            protected void populateViewHolder(ListOnlineHolder viewHolder, final User model, int position) {
+//
+//                viewHolder.tvUserEmail.setText(model.getEmail());
+//                viewHolder.setOnItemClickListener(new ListOnlineHolder.ClickListener() {
+//                    @Override
+//                    public void onItemClick(int position, View v) {
+//                        // Toast.makeText(ListLoginActivity.this, "clicked", Toast.LENGTH_SHORT).show();
+//                        if (!model.getEmail().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
+//                            if (FirebaseAuth.getInstance().getCurrentUser() != null && location != null) {
+//                                Intent intentMap = new Intent(ListLoginActivity.this, MapTrackingActvity.class);
+//                                intentMap.putExtra("email", model.getEmail());
+//                                intentMap.putExtra("lat", location.getLatitude());
+//                                intentMap.putExtra("lon", location.getLongitude());
+//                                startActivity(intentMap);
+//
+//                            }
+//                        }
+//
+//
+//                    }
+//
+//                    @Override
+//                    public void onItemLongClick(int position, View v) {
+//
+//                    }
+//                });
+//
+//
+//            }
+//        };
+//        recyclerViewListOnlineUsers.setAdapter(adapter);
+//        adapter.notifyDataSetChanged();
     }
 
     private void init() {

@@ -19,7 +19,9 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            >
 
 
             <Button
@@ -27,6 +29,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_margin="20dp"
+                android:visibility="gone"
                 android:background="@drawable/titlebar_menu_selector" />
 
             <TextSwitcher
@@ -54,6 +57,22 @@
                 android:checked="true"
 
                 />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start Driving "
+                android:layout_toLeftOf="@id/switchDriverStatus"
+                android:drawableLeft="@drawable/navigation3"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/button_selector"
+                android:textStyle="bold"
+                android:layout_margin="0dp"
+                android:visibility="gone"
+                android:id="@+id/btnStartNavigation"
+
+
+                />
+
         </RelativeLayout>
     </LinearLayout>
 
@@ -83,7 +102,7 @@
     <include
         android:id="@+id/layoutCustomerInfo"
         layout="@layout/layout_customer_info"
-        android:visibility="visible"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

@@ -1,11 +1,12 @@
 include ':app'
-include  ':sweetsheet'
+//include  ':sweetsheet'
 include ':ResideMenu'
 //include ':ccp'
 //include ':spotlight'
 include ':steppers'
 //include ':library'
 //include ':drawer'
+//include ':tedbottompicker'
 //override your build tools version in gradle.properties
 
 if (!System.properties['buildToolsVersion']) {

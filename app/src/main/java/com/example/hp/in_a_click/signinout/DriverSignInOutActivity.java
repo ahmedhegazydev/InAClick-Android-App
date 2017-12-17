@@ -1,9 +1,7 @@
 package com.example.hp.in_a_click.signinout;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,25 +10,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.Typeface;
-import android.net.Uri;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.BottomSheetDialogFragment;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
@@ -68,9 +57,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.example.hp.in_a_click.R;
-import com.example.hp.in_a_click.code.GetComplexCode;
-import com.example.hp.in_a_click.dialogs.FragmentModalBottomSheet;
-import com.example.hp.in_a_click.general.Urls;
 import com.example.hp.in_a_click.model.UserDriver;
 import com.example.hp.in_a_click.model.UserHomeOwner;
 import com.example.hp.in_a_click.model.UserNormal;
@@ -85,7 +71,6 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.github.javiersantos.bottomdialogs.BottomDialog;
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -140,24 +125,20 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-import butterknife.ButterKnife;
-import dmax.dialog.SpotsDialog;
-import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
-
-import javax.mail.Authenticator;
 import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+
+import butterknife.ButterKnife;
+import dmax.dialog.SpotsDialog;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class DriverSignInOutActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
@@ -210,7 +191,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
     Switch aSwitchLoginVia = null;
     Context context = null;
     TextView tvLoginVia = null;
-    Animation animScaleUp, animScaleDown;
+    Animation animScaleUp, animScaleDown, animWobble;
     TextView tvErrorLogin = null;
     View viewLogin = null, viewRegister;
     TextView tvErrorRegister = null;
@@ -544,20 +525,123 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         if (savedInstanceState != null) {
             onRestoreInstanceState(savedInstanceState);
         }
-
-//        if (FirebaseAuth.getInstance().getCurrentUser() != null){
-//            startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class));
-//            finish();
-//        }
-
+        //for session
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            dialogSession = new SpotsDialog(DriverSignInOutActivity.this, "");
+            dialogSession.show();
+            checkIfThisUserDriverOrNormal(currentUser);
+            return;
+        }
         setContentView(R.layout.activity_driver_sign_in_out);
         ButterKnife.bind(this);
         init();
         addBgStartImageView();
         initGoogleLoginButton();
         initPlacPicker();
+        ///initPhoneCompRegisteration();
 
         //new GetComplexCode(getApplicationContext()).getComplexCode();
+
+
+    }
+
+    EditText etCompPhoneRegFirstName, etCompPhoneRegLastName;
+
+    private void initPhoneCompRegisteration() {
+
+        final View view =
+                LayoutInflater.from(getApplicationContext())
+                        .inflate(R.layout.layout_complete_phone, null);
+
+        final TextView tvError = view.findViewById(R.id.tvErrorRegister);
+        tvError.setVisibility(View.GONE);
+
+        etCompPhoneRegFirstName = ((TextInputLayout) view.findViewById(R.id.tilFirstName))
+                .getEditText();
+        etCompPhoneRegLastName = ((TextInputLayout) view.findViewById(R.id.tilLastName))
+                .getEditText();
+
+        final View btnNext1 = view.findViewById(R.id.btnNext1);
+        final View btnNext2 = view.findViewById(R.id.btnNext2);
+
+        btnNext1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (TextUtils.isEmpty(etCompPhoneRegFirstName.getText())) {
+                    tvError.setVisibility(View.VISIBLE);
+                    tvError.setText("Enter Firstname");
+                    tvError.startAnimation(animWobble);
+                    return;
+                }
+                btnNext1.setVisibility(View.GONE);
+                btnNext2.setVisibility(View.VISIBLE);
+                tvError.setVisibility(View.GONE);
+                etCompPhoneRegLastName.setVisibility(View.VISIBLE);
+
+
+            }
+        });
+        btnNext2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (TextUtils.isEmpty(etCompPhoneRegLastName.getText())) {
+                    tvError.setVisibility(View.INVISIBLE);
+                    tvError.startAnimation(animWobble);
+                    tvError.setText("Enter Lastname");
+
+                    return;
+                }
+                tvError.setVisibility(View.GONE);
+                completePhoneRegisterFirebase(userPhone);
+            }
+        });
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context)
+                .setView(view);
+        android.app.AlertDialog alertDialog = builder.create();
+        alertDialog.setCancelable(false);
+        alertDialog.setCanceledOnTouchOutside(false);
+        if (!alertDialog.isShowing()) {
+            alertDialog.show();
+        }
+
+
+    }
+
+    FirebaseUser userPhone = null;
+
+    private void completePhoneRegisterFirebase(FirebaseUser firebaseUser) {
+        //saving the phone user data in firebase database
+        final SpotsDialog dialogSaving = new SpotsDialog(context, "Saving data");
+        dialogSaving.show();
+
+        if (firebaseUser == null)
+            return;
+
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(firebaseUser.getUid());
+        UserNormal userNormal = new UserNormal("", "",
+                etCompPhoneRegFirstName.getText().toString() + " " +
+                        etCompPhoneRegLastName.getText().toString(),
+                etPhoneNumber.getText().toString());
+        reference.setValue(userNormal, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                if (dialogSaving.isShowing())
+                    dialogSaving.dismiss();
+                if (cbUserLogin.isChecked()) {
+                    startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, TAG_NORMAL_USER));
+                } else {
+                    if (selectedRoleWorkerLogin == TAG_DRIVER) {
+                        startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, TAG_DRIVER));
+                    } else {
+                        startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, TAG_HOME_OWNER));
+                    }
+                }
+                finish();
+            }
+        });
 
 
     }
@@ -800,8 +884,8 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
     private void firebaseAuthWithGoogle(Task<GoogleSignInAccount> task) {
         //Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
-
-        AuthCredential credential = GoogleAuthProvider.getCredential(task.getResult().getIdToken(), null);
+        AuthCredential credential = GoogleAuthProvider
+                .getCredential(task.getResult().getIdToken(), null);
         firebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -871,7 +955,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 }
             }
         };
-       // firebaseAuth.addAuthStateListener(authStateListener);
+        // firebaseAuth.addAuthStateListener(authStateListener);
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         refUsers = firebaseDatabase.getReference("Users");
@@ -889,7 +973,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
         animScaleDown = AnimationUtils.loadAnimation(context, R.anim.scale_down);
         animScaleUp = AnimationUtils.loadAnimation(context, R.anim.scale_up);
-
+        animWobble = AnimationUtils.loadAnimation(context, R.anim.wobble);
 
     }
 
@@ -1230,6 +1314,12 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 });
             }
         });
+        alertDialogLogin.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+
+            }
+        });
         if (!alertDialogLogin.isShowing()) {
             alertDialogLogin.show();
         }
@@ -1345,21 +1435,8 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //                        }
 
                         if (task.isComplete() && task.isSuccessful()) {
-                            Intent intent = new Intent(DriverSignInOutActivity.this, MenuActivity.class);
-                            if (cbUserLogin.isChecked()) {
-                                intent.putExtra(WHO, TAG_NORMAL_USER);
-                            } else {
-                                if (selectedRoleWorkerLogin.equals(TAG_DRIVER)) {
-                                    intent.putExtra(WHO, TAG_DRIVER);
-                                } else {
-                                    intent.putExtra(WHO, TAG_HOME_OWNER);
-                                }
-                            }
-                            if (waitLogin.isShowing()) {
-                                waitLogin.dismiss();
-                            }
-                            startActivity(intent);
-                            finish();
+                            checkIfThisUserDriverOrNormal(task.getResult().getUser());
+                            Log.e("OnComplete", "Success");
                         }
 
                     }
@@ -1380,6 +1457,83 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                                 .sneakError();
                     }
                 });
+
+    }
+
+    String userType = "";
+
+    private void checkIfThisUserDriverOrNormal(final FirebaseUser user) {
+
+        final DatabaseReference refUsers = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(user.getUid()),
+                refDrivers = FirebaseDatabase.getInstance().getReference("Workers")
+                        .child(DriverSignInOutActivity.TAG_DRIVER)
+                        .child(user.getUid()),
+                refHomeOwners = FirebaseDatabase.getInstance().getReference("Workers")
+                        .child(DriverSignInOutActivity.TAG_HOME_OWNER)
+                        .child(user.getUid());
+
+        ////Query queryUsers = refUsers.startAt()
+        refUsers.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                    Intent intent = new Intent(DriverSignInOutActivity.this, MenuActivity.class);
+                    intent.putExtra(WHO, TAG_NORMAL_USER);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    userType = "";
+                }
+                //refUsers.removeEventListener(this);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        refDrivers.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                    Intent intent = new Intent(DriverSignInOutActivity.this, MenuActivity.class);
+                    intent.putExtra(WHO, TAG_DRIVER);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    userType = "";
+                }
+                //refDrivers.removeEventListener(this);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        refHomeOwners.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                    Intent intent = new Intent(DriverSignInOutActivity.this, MenuActivity.class);
+                    intent.putExtra(WHO, TAG_HOME_OWNER);
+                    startActivity(intent);
+                    finish();
+
+                } else {
+                    userType = "";
+                }
+                //refHomeOwners.removeEventListener(this);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
 
     }
 
@@ -1411,7 +1565,9 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 //        waitLogin.show();
 
         //ok the , let's go to signin with phone number
-        startPhoneNumberVerification(countryCode + etPhoneNumber.getText().toString());
+        String phone = (countryCode + etPhoneNumber.getText()).toString().trim().replace(" ", "");
+        Log.e("phoneNumber", phone);
+        startPhoneNumberVerification(phone);
 
 
         //loginUserVolley(Urls.URL_LOGIN, new GetComplexCode(getApplicationContext()).getComplexCode(), etPhoneNumber.getText().toString());
@@ -1802,7 +1958,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
     }
 
-
     private void sendSms(String phoneNo, String message) {
 //        try {
 //            SmsManager smsManager = SmsManager.getDefault();
@@ -2088,7 +2243,6 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
     }
 
-
     public void sendEmail(String from, String to, String subject, String messageText) {
         try {
             String host = "smtp.gmail.com";
@@ -2171,8 +2325,11 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                     etEmailReg.getText().toString(),
                     etPassReg.getText().toString(),
                     etNameReg.getText().toString(),
-                    ccpRegister.getSelectedCountryCodeWithPlus() + etPhoneReg.getText().toString(),
-                    etCity.getText().toString()
+                    ccpRegister.getSelectedCountryCodeWithPlus() +
+                            etPhoneReg.getText().toString(),
+                    etCity.getText().toString(),
+                    "",
+                    "user"
 
             );
             //using email to key, u can't as itis contain @ and .   characters
@@ -2205,9 +2362,12 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                         etEmailReg.getText().toString(),
                         etPassReg.getText().toString(),
                         etNameReg.getText().toString(),
+                        ccpRegister.getSelectedCountryCodeWithPlus() +
+                                etPhoneReg.getText().toString(),
                         etCity.getText().toString(),
-                        ccpRegister.getSelectedCountryCodeWithPlus() + etPhoneReg.getText().toString(),
-                        false
+                        false,
+                        "driver"
+
                 );
                 refWorkers.child(strDriverOrHome).child(firebaseAuth.getCurrentUser().getUid()
                         //inAClickUser.getUserEmail()
@@ -2560,13 +2720,13 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 // 2 - Auto-retrieval. On some devices Google Play services can automatically
                 //     detect the incoming verification SMS and perform verificaiton without
                 //     user action.
-                //Log.d(TAG, "onVerificationCompleted:" + credential);
+                Log.e(TAG, "onVerificationCompleted:" + credential);
 
                 mVerificationInProgress = false;
 
                 // Update the UI and attempt sign in with the phone credential
 //                updateUI(STATE_VERIFY_SUCCESS, credential);
-//                signInWithPhoneAuthCredential(credential);
+                //signInWithPhoneAuthCredential(credential);
 
 
             }
@@ -2594,22 +2754,9 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                             .setTitle("Error!!")
                             .setMessage("Check Internet Connection !!!")
                             .sneakError();
-                    waitDialog.dismiss();
+
                 }
-//
-//                // Show a message and update the UI
-//                //updateUI(STATE_VERIFY_FAILED);
-//                if (progressDialog != null) {
-//                    if (progressDialog.isShowing())
-//                        progressDialog.dismiss();
-//                }
-//                if (pdVerification != null) {
-//                    if (pdVerification.isShowing())
-//                        pdVerification.dismiss();
-//                }
-//                if (barResendCode != null) {
-//                    barResendCode.setVisibility(ProgressBar.GONE);
-//                }
+                waitDialog.dismiss();
 
             }
 
@@ -2651,7 +2798,8 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
                 phoneNumber,        // Phone number to verify
                 20,                 // Timeout duration
                 TimeUnit.SECONDS,   // Unit of timeout
-                this,               // Activity (for callback binding)
+                //this,               // Activity (for callback binding)
+                DriverSignInOutActivity.this,
                 mCallbacks);        // OnVerificationStateChangedCallbacks
 
         mVerificationInProgress = true;
@@ -2694,7 +2842,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             @Override
             public void onClick(View v) {
 
-                waitDialog = new SpotsDialog(context, "Verifiying the code ...");
+                waitDialog = new SpotsDialog(context, "Verifying the code ...");
                 waitDialog.show();
 
                 String code =
@@ -2817,6 +2965,8 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 
         if (!alertDialogEnterDigits.isShowing()) {
             alertDialogEnterDigits.show();
+        } else {
+
         }
 
     }
@@ -2925,17 +3075,8 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
 ////                            editor.putString(KEY_IMAGES_UPLOADED, keyUploadedImages);
 //
 //
-                            FirebaseUser user = task.getResult().getUser();
-                            if (cbUserLogin.isChecked()) {
-                                startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, TAG_NORMAL_USER));
-                            } else {
-                                if (selectedRoleWorkerLogin == TAG_DRIVER) {
-                                    startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, TAG_DRIVER));
-                                } else {
-                                    startActivity(new Intent(DriverSignInOutActivity.this, MenuActivity.class).putExtra(WHO, TAG_HOME_OWNER));
-                                }
-                            }
-                            finish();
+                            userPhone = task.getResult().getUser();
+                            initPhoneCompRegisteration();
                         } else {
 //                            //Log.w(TAG, "signInWithCredential:failure", task.getException());
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
@@ -3060,18 +3201,22 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         }
     }
 
+    SpotsDialog dialogSession = null;
+
     @Override
     protected void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-//        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-//        updateUI(currentUser);
-//
-//        firebaseAuth.addAuthStateListener(authStateListener);
+//        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+//        if (currentUser != null) {
+//            checkIfThisUserDriverOrNormal(currentUser);
+//        }
 
+//        firebaseAuth.addAuthStateListener(authStateListener);
 //        if (mVerificationInProgress && validatePhoneNumber()) {
 //            startPhoneNumberVerification(etPhoneNumber.getText().toString());
-//        }
+//        }dialogSession.show();
+
 
     }
 
@@ -3285,5 +3430,4 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
             onTick(duration / 1000);
         }
     }
-
 }

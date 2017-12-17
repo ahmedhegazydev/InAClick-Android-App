@@ -24,6 +24,7 @@ https://stackoverflow.com/questions/32036656/setting-src-and-background-for-floa
 https://developer.android.com/training/location/retrieve-current.html#last-known
 https://github.com/hootsuite/nachos
 http://www.learn-android-easily.com/2013/06/android-textswitcher.html
+https://stackoverflow.com/questions/5191825/is-there-an-api-for-google-maps-navigation-in-android
 
 //android directions github
 https://www.google.com.eg/search?biw=1455&bih=686&ei=uLorWvCiLsjjU4uxu8AJ&q=android+directions+github&oq=android+directions+github&gs_l=psy-ab.3...3650.7936.0.8112.7.7.0.0.0.0.582.728.0j1j5-1.2.0....0...1c.1.64.psy-ab..5.2.726...0j0i22i30k1j33i160k1.0.lKSdRum1lHg
@@ -35,20 +36,20 @@ https://github.com/lopspower/CircularProgressBar
 https://github.com/ylyc/circular_progress_bar
 
 
+
 Fragments
 Google APIS
-RESTFUL json
+RESTFUL json(Volley, Retrofit, )
 Firebase Database (cloud message APIs) / authentication/authorization.
 Pushing notification
 Animation(Custom)
-Sharing, Version control ( Git
-Google Maps
+Sharing, Version control ( Git )
+Google Maps(Directions, Routing, Navigate, GPS, MapZen, MapBox, ....)
 Best practice
-Volley, Retrofit, Glide and more
 Debugging
 material design(FAB, Collapsed toolbar, and  more)
 Problem solving
-GPS
+GPS, GeoFire
 Dependency injection(Dagger, Butterknife, )
 Design patterns
 deal with different screen sizes
@@ -56,7 +57,4 @@ frameworks and libraries
 interface guidelines
 sensors, such as gyroscopes and accelerometers
 offline storage, threading
-
-
-
 
