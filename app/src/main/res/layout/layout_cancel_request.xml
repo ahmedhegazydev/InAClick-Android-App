@@ -88,6 +88,7 @@
               android:indeterminate="true"
               android:layout_marginRight="50dp"
               android:layout_marginLeft="50dp"
+              android:layout_marginTop="2dp"
               android:layout_below="@id/slideViewCancelRequest"
 
               />

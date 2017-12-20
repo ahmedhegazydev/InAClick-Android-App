@@ -5,14 +5,25 @@ package com.example.hp.in_a_click.model;
  */
 
 public class UserNormal {
-    String userEmail;
-    String userPass;
-    String userName;
-    String userPhone;
+    String userEmail = "";
+    String userPass = "";
+    String userName = "";
+    String userPhone = "";
     String city = "";
     String driverId = "";
     String userType = "";//user normal
     String userPhotoUrl = "";
+
+    public UserNormal(String userEmail, String userPass, String userName, String userPhone, String city, String driverId, String userType, String userPhotoUrl) {
+        this.userEmail = userEmail;
+        this.userPass = userPass;
+        this.userName = userName;
+        this.userPhone = userPhone;
+        this.city = city;
+        this.driverId = driverId;
+        this.userType = userType;
+        this.userPhotoUrl = userPhotoUrl;
+    }
 
     public UserNormal(String userEmail, String userPass, String userName, String userPhone) {
         this.userEmail = userEmail;
@@ -20,6 +31,7 @@ public class UserNormal {
         this.userName = userName;
         this.userPhone = userPhone;
     }
+
     public UserNormal() {
     }
 
@@ -39,6 +51,18 @@ public class UserNormal {
         this.userName = userName;
         this.userPhone = userPhone;
         this.city = city;
+    }
+
+    public String getDriverId() {
+        return driverId;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public String getUserPhotoUrl() {
+        return userPhotoUrl;
     }
 
     public String getCity() {

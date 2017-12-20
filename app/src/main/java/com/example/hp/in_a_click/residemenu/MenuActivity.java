@@ -116,7 +116,7 @@ public class MenuActivity extends FragmentActivity implements View.OnClickListen
             new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //removeGeoFire();
+                    removeGeoFire();
                     finish();
                     FirebaseAuth.getInstance().signOut();
                     startActivity(new Intent(mContext, DriverSignInOutActivity.class));

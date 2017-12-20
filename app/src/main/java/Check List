@@ -42,3 +42,53 @@ Suggestion: add 'tools:replace="android:value"' to <meta-data> element at Androi
 نقدر نبعت كود ليه بعد اما يتم قبوله بالنسبه للرايفر
 يتم اختيار اقرب عربيه اونلاين بوجود 10تواني واذا لم يستجيب يتم احضار اللي بعده ابعد منه وهكذا
 
+ممكن نبدأ بهذه الاسعار حسب الفئات
+ويتم تعديلها لاحقاً ان استدعى الامر ،
+
+In a click  Luxury
+Base Fare: 7ج.م
+Per Minute: 0.40ج.م
+Per Km: 2ج.م
+Cancellation Fee: 10ج.م
+Service Fees: 0ج.م
+Minimum Fare: 15ج.م
+
+In a click Economy
+Base Fare: 6ج.م
+Per Minute: 0.25ج.م
+Per Km: 1.85ج.م
+Cancellation Fee: 10ج.م
+Service Fees: 0ج.م
+Minimum Fare: 10ج.م
+
+In a click family
+Base Fare: 7ج.م
+Per Minute: 0.40ج.م
+Per Km: 2ج.م
+Cancellation Fee: 10ج.م
+Service Fees: 0ج.م
+Minimum Fare: 15ج.م
+
+In a click special needs
+Base Fare: 7ج.م
+Per Minute: 0.40ج.م
+Per Km: 2ج.م
+Cancellation Fee: 10ج.م
+Service Fees: 0ج.م
+Minimum Fare: 15ج.م
+
+In a click Lorry
+Base Fare: 6ج.م
+Per Minute: 0.25ج.م
+Per Km: 1.85ج.م
+Cancellation Fee: 10ج.م
+Service Fees: 50 ج.م
+Minimum Fare: 10ج.م
+
+In a click    winch
+Base Fare: 6ج.م
+Per Minute: 0.25ج.م
+Per Km: 1.85ج.م
+Cancellation Fee: 10ج.م
+Service Fees: 50 ج.م
+Minimum Fare: 10ج.م

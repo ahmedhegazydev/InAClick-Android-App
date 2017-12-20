@@ -4,7 +4,7 @@
             "outputFile": "/home/ahmed/Desktop/In_A_Click/ResideMenu/build/intermediates/incremental/mergeDebugAndroidTestResources/merged.dir/values-v21/values-v21.xml",
             "map": [
                 {
-                    "source": "/home/ahmed/.gradle/caches/transforms-1/files-1.1/support-compat-27.0.1.aar/7dd139dc3cdf70a8aee17e6ffab502b2/res/values-v21/values-v21.xml",
+                    "source": "/home/ahmed/.gradle/caches/transforms-1/files-1.1/support-compat-27.0.1.aar/c95b7da450d4587a27cabbf805cbb19b/res/values-v21/values-v21.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,13",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4",
@@ -23,7 +23,7 @@
                     }
                 },
                 {
-                    "source": "/home/ahmed/.gradle/caches/transforms-1/files-1.1/support-media-compat-27.0.1.aar/2c885c2ed696a27f5655cab564701f78/res/values-v21/values-v21.xml",
+                    "source": "/home/ahmed/.gradle/caches/transforms-1/files-1.1/support-media-compat-27.0.1.aar/36a5acf4cbc3b93419f73916f9519924/res/values-v21/values-v21.xml",
                     "from": {
                         "startLines": "2,5,8,11",
                         "startColumns": "4,4,4,4",

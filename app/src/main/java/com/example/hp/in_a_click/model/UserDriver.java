@@ -23,6 +23,9 @@ public class UserDriver {
     String destLon= "";
     String service = "";//uber-x or uber-XL or .....
     String photoUrl= "";
+    String driverRating = "";
+    String numOfStarts = "";
+
 
     public UserDriver(String userEmail, String userPass, String userName,
                       String userPhone, String city, boolean driverStatus, String userType) {

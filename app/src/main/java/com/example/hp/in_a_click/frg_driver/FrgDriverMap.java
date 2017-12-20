@@ -83,6 +83,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.arsy.maps_library.MapRipple;
 import com.bumptech.glide.Glide;
 import com.directions.route.AbstractRouting;
 import com.directions.route.Route;
@@ -96,6 +97,7 @@ import com.example.hp.in_a_click.frg_user.FrgUserMap;
 import com.example.hp.in_a_click.frg_worker_proc.Step5AddCat;
 import com.example.hp.in_a_click.model.GameEntity;
 import com.example.hp.in_a_click.model.UserDriver;
+import com.example.hp.in_a_click.model.UserNormal;
 import com.example.hp.in_a_click.residemenu.MenuActivity;
 import com.example.hp.in_a_click.signinout.DriverSignInOutActivity;
 import com.firebase.geofire.GeoFire;
@@ -144,6 +146,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.hanks.htextview.HTextView;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 import com.skyfishjy.library.RippleBackground;
@@ -244,18 +247,62 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
         initAnimations();
         //initNoticeVars();
         //runNoticeProgress();
-
         //initMapBoxNavigationSDK(savedInstanceState);
-
+        //testStartNavigation();
         return parentView;
     }
 
+    private void testStartNavigation() {
+        Intent intent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse("http://maps.google.com/maps?" +
+                        "saddr=" + 29.980390 + "," + 31.181483 +
+                        "&daddr=" + 30.004476 + "," + 31.184744));
+        intent.setClassName("com.google.android.apps.maps",
+                "com.google.android.maps.MapsActivity");
+        startActivity(intent);
+    }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initNoticeVars(view);
         initBtnStartNavigation(view);
+        initStartTripTextView(view);
+        initAlreadyArrivedButton(view);
+
+
+    }
+
+
+    Button btnAlreadyArrived = null;
+
+    private void initAlreadyArrivedButton(View parentView) {
+        btnAlreadyArrived = parentView.findViewById(R.id.btnArrivedAlready);
+        btnAlreadyArrived.setVisibility(View.INVISIBLE);
+        btnAlreadyArrived.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tvStartTripNow.setVisibility(View.VISIBLE);
+            }
+        });
+
+    }
+
+
+    HTextView tvStartTripNow = null;
+
+    private void initStartTripTextView(View view) {
+        tvStartTripNow = view.findViewById(R.id.textStartTripNow);
+        tvStartTripNow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+            }
+        });
+        tvStartTripNow.setVisibility(View.INVISIBLE);
+
+
     }
 
     @Override
@@ -340,12 +387,19 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
                 handler.removeCallbacks(runnable);
                 stopHandler = false;
                 circularPbarLayout.setVisibility(View.GONE);
+
                 passDriverIdToCustomer();
                 drawLineBetweenDriverAndUser();
 
-                btnStartNavigation.setVisibility(View.VISIBLE);
-                btnStartNavigation.startAnimation(animIn);
+                checkRequestStatus();
+                fire = true;
 
+                //start checking if the driver arrived to user
+                boStartTrip = true;
+
+
+//                btnStartNavigation.setVisibility(View.VISIBLE);
+//                btnStartNavigation.startAnimation(animIn);
 
             }
         });
@@ -374,7 +428,9 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
     }
 
     private void passDriverIdToCustomer() {
-        final DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(customerId)
+        final DatabaseReference reference = FirebaseDatabase
+                .getInstance()
+                .getReference("Users").child(customerId)
                 //.child("driverId")
                 ;
         final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -382,10 +438,14 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
             reference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.hasChild("driverId")) {
-                        HashMap<String, Object> hm = new HashMap<>();
-                        hm.put("driverId", firebaseUser.getUid().toString());
-                        reference.updateChildren(hm);
+                    if (dataSnapshot.exists()) {
+                        UserNormal userNormal = dataSnapshot.getValue(UserNormal.class);
+                        reference.setValue(new UserNormal(userNormal.getUserEmail(),
+                                userNormal.getUserPass(), userNormal.getUserName(),
+                                userNormal.getUserPhone(), userNormal.getCity(),
+                                firebaseUser.getUid(), userNormal.getUserType(),
+                                userNormal.getUserPhotoUrl()));
+
                     }
                 }
 
@@ -418,6 +478,8 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
                         handler.removeCallbacks(runnable);
                         stopHandler = false;
                         circularPbarLayout.setVisibility(View.GONE);
+                        //the driver doesn't accept
+
                     }
                     handler.postDelayed(runnable, delay);// move this inside the run method
                 }
@@ -456,6 +518,7 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
                                 if (customerId != "" && map.get("passengerId") != null) {
                                     getAssignedCustomerPickupLocation(customerId);
                                     getAssignedCustomerInfo();
+
                                 }
                             }
                         } else {
@@ -812,6 +875,24 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
 
     }
 
+    MapRipple mapRippleCurrent = null;
+    int withStrokewidth = 5, withRippleDuration = 10000;
+    int withNumberOfRipples = 6;
+    int withDistance = 15;
+
+
+    private void addRadarOnMapCurrent(Context context, LatLng latLng) {
+        mapRippleCurrent = new MapRipple(googleMap, latLng, context);
+        mapRippleCurrent.withNumberOfRipples(withNumberOfRipples);
+//            mapRippleCurrent.withFillColor(Color.parseColor("#FFA3D2E4"));
+        mapRippleCurrent.withStrokeColor(Color.BLACK);
+        mapRippleCurrent.withStrokewidth(withStrokewidth);      // 10dp
+        mapRippleCurrent.withDistance(withDistance);      // 2000 metres radius
+        mapRippleCurrent.withRippleDuration(withRippleDuration);    //12000ms
+//            mapRippleCurrent.withTransparency(0.5f);
+        mapRippleCurrent.startRippleMapAnimation();
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -878,6 +959,21 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
                 stopLocationUpdates();
             }
         }
+        if (listenerGetAssignedCustomer != null)
+            refGetAssignedCustomer.removeEventListener(listenerGetAssignedCustomer);
+
+        stopRippleRadar();
+
+
+    }
+
+
+    private void stopRippleRadar() {
+        if (mapRippleCurrent != null) {
+            if (mapRippleCurrent.isAnimationRunning()) {
+                mapRippleCurrent.stopRippleMapAnimation();
+            }
+        }
     }
 
     @Override
@@ -885,6 +981,12 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
         super.onDestroy();
         mapViewDriver.onDestroy();
 //       mapViewNavigation.onDestroy();
+
+        if (listenerGetAssignedCustomer != null)
+            refGetAssignedCustomer.removeEventListener(listenerGetAssignedCustomer);
+
+        stopRippleRadar();
+
     }
 
     @Override
@@ -897,6 +999,7 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
 
     @Override
     public void onStop() {
+        super.onStop();
 //        mapViewNavigation.onStop();
         mapViewDriver.onStop();
         // Stop location updates to save battery, but don't disconnect the GoogleApiClient object.
@@ -906,7 +1009,11 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
             }
         }
         ///removeGeoFire();
-        super.onStop();
+        if (listenerGetAssignedCustomer != null)
+            refGetAssignedCustomer.removeEventListener(listenerGetAssignedCustomer);
+        stopRippleRadar();
+
+
     }
 
     @Override
@@ -1006,8 +1113,8 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
     }
 
     private void displayLocation() {
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        if (/*ActivityCompat*/ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && /*ActivityCompat*/ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 ) {
             return;
         }
@@ -1046,76 +1153,107 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
 //        if (listenereDriverStatus != null)
 //            refDriversGeoFireDatabase.removeEventListener(listenerGetAssignedCustomer);
-        listenereDriverStatus = refDriversGeoFireDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChildren()) {
-                    UserDriver userDriver = dataSnapshot.getValue(UserDriver.class);
+        listenereDriverStatus = refDriversGeoFireDatabase
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.hasChildren()) {
+                            UserDriver userDriver = dataSnapshot.getValue(UserDriver.class);
 
-                    if (lastLocation != null) {
-                        lat = lastLocation.getLatitude();
-                        lon = lastLocation.getLongitude();
-                        if (userDriver.isDriverStatus()) {
-                            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                                geoFire.setLocation(FirebaseAuth.getInstance().
-                                        getCurrentUser().getUid(), new GeoLocation(lat, lon), new GeoFire.CompletionListener() {
-                                    @Override
-                                    public void onComplete(String key, DatabaseError error) {
+                            if (lastLocation != null) {
+                                lat = lastLocation.getLatitude();
+                                lon = lastLocation.getLongitude();
+                                if (userDriver.isDriverStatus()) {
+                                    //check if it is in driversworking ref, if yes - > don't add driversAvailable
+                                    //if not add its availability
+                                    FirebaseDatabase.getInstance().getReference("DriversWorking")
+                                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                            .addValueEventListener(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                                                        //don't add it as available
+                                                    } else {
+                                                        geoFire.setLocation(FirebaseAuth.getInstance().
+                                                                getCurrentUser().getUid(), new GeoLocation(lat, lon), new GeoFire.CompletionListener() {
+                                                            @Override
+                                                            public void onComplete(String key, DatabaseError error) {
 
-                                        //changStatusDriverOnMap(true);
-                                    }
-                                });
+                                                                //changStatusDriverOnMap(true);
+                                                            }
+                                                        });
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
+                                }
+
+
+                                if (markerCurrentLocation != null) {
+                                    markerCurrentLocation.remove();
+                                }
+
+                                if (/*switchOnlineOffline.isChecked()*/userDriver.isDriverStatus()) {
+                                    markerCurrentLocation = googleMap.addMarker(new MarkerOptions()
+                                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
+                                                    //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))//by default
+                                                    //.icon(createAppropIconForThisDriver(userDriver.getCarCatName())
+                                                    //.icon(BitmapDescriptorFactory.fromResource(R.drawable.user))
+                                                    .title(userDriver.getUserName())
+                                                    .snippet(setCarCatName(userDriver.getCarCatName()))
+                                                    //.snippet(userDriver.getCarModelNumber() + "  " + userDriver.getCarCatName())
+                                                    .position(new LatLng(lat, lon))
+                                                    .flat(false)
+                                            //.draggable(false)
+
+
+                                    );
+                                    //Log.e("DrivUserName", userDriver.getUserEmail() + userDriver.getUserName());
+
+                                } else {
+                                    markerCurrentLocation = googleMap.addMarker(new MarkerOptions()
+                                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.invisible))
+                                                    //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))//by default
+                                                    //.icon(createAppropIconForThisDriver(userDriver.getCarCatName())
+                                                    //.icon(BitmapDescriptorFactory.fromResource(R.drawable.user))
+                                                    .title(userDriver.getUserName())
+                                                    .snippet(setCarCatName(userDriver.getCarCatName()))
+                                                    .position(new LatLng(lat, lon))
+                                                    .flat(false)
+                                            //.draggable(false)
+
+
+                                    );
+
+                                }
+                                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                                        new LatLng(lat, lon), 15.0f));
+                                //rotateMarker(currentMarker, -360, mMap);
+                                //Log.e("getCarCatName", userDriver.getCarCatName());
+                                if (mapRippleCurrent != null) {
+                                    mapRippleCurrent.stopRippleMapAnimation();//stop last
+                                }
+                                //then create a new one
+                                addRadarOnMapCurrent(getActivity(),
+                                        new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
                             }
+
                         }
+                        //refDriversGeoFireDatabase.removeEventListener(this);
+
+
                     }
-                    if (markerCurrentLocation != null) {
-                        markerCurrentLocation.remove();
+
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
                     }
-                    assert userDriver != null;
-                    if (/*switchOnlineOffline.isChecked()*/userDriver.isDriverStatus()) {
-                        markerCurrentLocation = googleMap.addMarker(new MarkerOptions()
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
-                                //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))//by default
-                                //.icon(createAppropIconForThisDriver(userDriver.getCarCatName())
-                                //.icon(BitmapDescriptorFactory.fromResource(R.drawable.user))
-                                .title(setCarCatName(userDriver.getUserName()))
-                                .snippet(userDriver.getCarModelNumber() + "  " + userDriver.getCarCatName())
-                                .position(new LatLng(lat, lon))
-                                .flat(false)
-                                .draggable(false)
-
-
-                        );
-                    } else {
-                        markerCurrentLocation = googleMap.addMarker(new MarkerOptions()
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.invisible))
-                                //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))//by default
-                                //.icon(createAppropIconForThisDriver(userDriver.getCarCatName())
-                                //.icon(BitmapDescriptorFactory.fromResource(R.drawable.user))
-                                .title(setCarCatName(userDriver.getUserName()))
-                                .snippet(userDriver.getCarModelNumber() + "  " + userDriver.getCarCatName())
-                                .position(new LatLng(lat, lon))
-                                .flat(false)
-                                .draggable(false)
-
-
-                        );
-                    }
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                            new LatLng(lat, lon), 15.0f));
-                    //rotateMarker(currentMarker, -360, mMap);
-                    Log.e("getCarCatName", userDriver.getCarCatName());
-
-                }
-                //refDriversGeoFireDatabase.removeEventListener(this);
-            }
-
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+                });
 
 
     }
@@ -1376,6 +1514,8 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
 
     }
 
+    boolean fire = false;
+
     @Override
     public void onLocationChanged(Location location) {
         //Log.i(TAG, "onLocationChanged");
@@ -1383,8 +1523,33 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
         //mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
         //updateUI();
         //Toast.makeText(this, getResources().getString(R.string.location_updated_message), Toast.LENGTH_SHORT).show();
+        checkIfDriverArrivedToUser();
         displayLocation();
-        checkRequestStatus();
+        if (fire) checkRequestStatus();
+    }
+
+    boolean boStartTrip = false;
+
+    private void checkIfDriverArrivedToUser() {
+        if (boStartTrip) {
+            if (lastLocation != null && latLngUser != null) {
+                //calculate the distance between the user and driver
+                Location locationDriver = new Location(""),
+                        locationUser = new Location("");
+                locationUser.setLatitude(latLngUser.latitude);
+                locationUser.setLongitude(latLngUser.longitude);
+
+                locationDriver.setLatitude(lastLocation.getLatitude());
+                locationDriver.setLongitude(lastLocation.getLongitude());
+
+                float distance = locationDriver.distanceTo(locationUser);
+
+                if (distance < 100) {
+                    btnAlreadyArrived.setVisibility(View.VISIBLE);
+                }
+
+            }
+        }
     }
 
     private void checkRequestStatus() {

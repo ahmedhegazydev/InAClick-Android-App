@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:htext="http://schemas.android.com/apk/res-auto"
     xmlns:mapbox="http://schemas.android.com/tools"
     android:id="@+id/rlMainView"
     android:layout_width="match_parent"
@@ -20,8 +21,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="5dp"
-            >
+            android:padding="5dp">
 
 
             <Button
@@ -29,8 +29,8 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_margin="20dp"
-                android:visibility="gone"
-                android:background="@drawable/titlebar_menu_selector" />
+                android:background="@drawable/titlebar_menu_selector"
+                android:visibility="gone" />
 
             <TextSwitcher
                 android:id="@+id/textSwitcherStatus"
@@ -57,18 +57,19 @@
                 android:checked="true"
 
                 />
+
             <Button
+                android:id="@+id/btnStartNavigation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Start Driving "
-                android:layout_toLeftOf="@id/switchDriverStatus"
-                android:drawableLeft="@drawable/navigation3"
-                android:textColor="#FFFFFF"
-                android:background="@drawable/button_selector"
-                android:textStyle="bold"
                 android:layout_margin="0dp"
+                android:layout_toLeftOf="@id/switchDriverStatus"
+                android:background="@drawable/button_selector"
+                android:drawableLeft="@drawable/navigation3"
+                android:text="Start Driving "
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
                 android:visibility="gone"
-                android:id="@+id/btnStartNavigation"
 
 
                 />
@@ -102,13 +103,47 @@
     <include
         android:id="@+id/layoutCustomerInfo"
         layout="@layout/layout_customer_info"
-        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:visibility="gone"
 
 
         />
+
+
+    <Button
+        android:id="@+id/btnArrivedAlready"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/AntiqueWhite"
+        android:gravity="center"
+        android:text="Already Arrived"
+        android:textColor="#FFFFFF"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+
+
+        />
+
+
+    <com.hanks.htextview.HTextView
+        android:id="@+id/textStartTripNow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/Brown"
+        android:text="Start Trip Now"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        htext:animateType="anvil"
+
+        />
+
+
     <!--<com.mapbox.mapboxsdk.maps.MapView-->
     <!--android:id="@+id/mapViewNavigation"-->
     <!--android:layout_below="@id/status"-->

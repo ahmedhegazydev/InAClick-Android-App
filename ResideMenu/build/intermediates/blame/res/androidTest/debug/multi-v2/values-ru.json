@@ -4,7 +4,7 @@
             "outputFile": "/home/ahmed/Desktop/In_A_Click/ResideMenu/build/intermediates/incremental/mergeDebugAndroidTestResources/merged.dir/values-ru/values-ru.xml",
             "map": [
                 {
-                    "source": "/home/ahmed/.gradle/caches/transforms-1/files-1.1/support-compat-27.0.1.aar/7dd139dc3cdf70a8aee17e6ffab502b2/res/values-ru/values-ru.xml",
+                    "source": "/home/ahmed/.gradle/caches/transforms-1/files-1.1/support-compat-27.0.1.aar/c95b7da450d4587a27cabbf805cbb19b/res/values-ru/values-ru.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

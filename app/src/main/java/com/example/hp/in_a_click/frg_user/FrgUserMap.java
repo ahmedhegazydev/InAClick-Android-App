@@ -125,6 +125,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -588,7 +589,7 @@ public class FrgUserMap extends Fragment implements GoogleApiClient.OnConnection
                     .child(DriverSignInOutActivity.TAG_DRIVER)
                     .child(driverKey)
                     //.child("passengerId")
-            .updateChildren(hashMap);
+                    .updateChildren(hashMap);
 //                    .setValue(new Hah)
 //                    .addOnCompleteListener(new OnCompleteListener<Void>() {
 //                @Override
@@ -1037,6 +1038,67 @@ public class FrgUserMap extends Fragment implements GoogleApiClient.OnConnection
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        initWidthAndHeight();
+        checkIfDriverPassHisIdAsAcceptRequest();
+
+    }
+
+    private void checkIfDriverPassHisIdAsAcceptRequest() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            FirebaseDatabase.getInstance()
+                    .getReference("Users")
+                    .child(user.getUid())
+                    .addChildEventListener(new ChildEventListener() {
+                        @Override
+                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                            if (dataSnapshot.hasChild("driverId")) {
+                                HashMap<String, Object> map = (HashMap<String, Object>) dataSnapshot.getValue();
+                                String driverId = (String) map.get("driverId");
+                                if (driverId != null && driverId != "") {
+                                    Log.e("driverId", driverId);
+                                    Toast.makeText(context, "Driver will arrive soon", Toast.LENGTH_SHORT).show();
+
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                            if (dataSnapshot.hasChild("driverId")) {
+                                HashMap<String, Object> map = (HashMap<String, Object>) dataSnapshot.getValue();
+                                String driverId = (String) map.get("driverId");
+                                if (driverId != null && driverId != "") {
+                                    Log.e("driverId", driverId);
+                                    Toast.makeText(context, "Driver will arrive soon", Toast.LENGTH_SHORT).show();
+
+                                }
+
+                            }
+                        }
+
+                        @Override
+                        public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                        }
+
+                        @Override
+                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+        } else {
+            Toast.makeText(context, "null user checkIfDriverPassHisIdAsAcceptRequest", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    private void initWidthAndHeight() {
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -1515,6 +1577,7 @@ public class FrgUserMap extends Fragment implements GoogleApiClient.OnConnection
     public void onDestroy() {
         super.onDestroy();
         mMapView.onDestroy();
+
     }
 
     @Override
@@ -2004,6 +2067,7 @@ public class FrgUserMap extends Fragment implements GoogleApiClient.OnConnection
 
 
     }
+
 
     private void drawLineFromUserToDriver(LatLng latLngUser, LatLng latLngDriver) {
         Routing routing = new Routing.Builder()
