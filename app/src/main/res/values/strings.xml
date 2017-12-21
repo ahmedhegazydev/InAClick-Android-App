@@ -43,12 +43,12 @@
 
 
     <string-array name="titles_cars">
-        <item>عائليه</item>
-        <item>فاخره</item>
-        <item>إقتصاديه</item>
-        <item>ذوي الاحتياجات الخاصه</item>
-        <item>ونش</item>
-        <item>سيارة نقل</item>
+        <item>Family 15 EG</item>
+        <item>Luxury 15 EG</item>
+        <item>Economy 10 EG</item>
+        <item>Special Needs 15 EG</item>
+        <item>Winch 10 EG</item>
+        <item>Lorry 10 EG</item>
     </string-array>
     <string-array name="titles_homes">
         <item>غرفه</item>

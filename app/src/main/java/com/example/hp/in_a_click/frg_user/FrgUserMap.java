@@ -1815,7 +1815,11 @@ public class FrgUserMap extends Fragment implements GoogleApiClient.OnConnection
 
     }
 
+
+    ArrayList<Integer> listCosts = new ArrayList<>();
+
     private void showCarDialog() {
+
 
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.layout_homes, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
@@ -1948,38 +1952,10 @@ public class FrgUserMap extends Fragment implements GoogleApiClient.OnConnection
                         @Override
                         public void onKeyEntered(String key, GeoLocation location) {
                             if (!driverFound && boRequest) {
-                                driverFound = true;
-                                driverKey = key;
-                                final DatabaseReference refDrivers = FirebaseDatabase.getInstance().getReference("Workers")
-                                        .child(DriverSignInOutActivity.TAG_DRIVER).child(driverKey);
-                                final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                                refDrivers.addValueEventListener(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
 
-                                            HashMap hmUserContactInfo = new HashMap<>();
-                                            hmUserContactInfo.put("passengerId", firebaseUser.getUid());
-                                            hmUserContactInfo.put("destination", strTo);
-//                                hmUserContactInfo.put("destLat", latLngDriver.latitude);
-//                                hmUserContactInfo.put("destLon", latLngDriver.longitude);
-                                            refDrivers.updateChildren(hmUserContactInfo);
-
-
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-
-                                    }
-                                });
-                                getDriverLocation();
-                                //setTimerForThisDriver();///otherwise it will be rejected then
-
+                                checkDriverCarCat(key);
                             }
                         }
-
 
                         @Override
                         public void onKeyExited(String key) {
@@ -2019,6 +1995,50 @@ public class FrgUserMap extends Fragment implements GoogleApiClient.OnConnection
 
     }
 
+    private void checkDriverCarCat(String key) {
+        driverKey = key;
+        final DatabaseReference refDrivers = FirebaseDatabase.getInstance().getReference("Workers")
+                .child(DriverSignInOutActivity.TAG_DRIVER).child(driverKey);
+        final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        refDrivers.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                    //make sure for the car category name
+                    UserDriver userDriver = dataSnapshot.getValue(UserDriver.class);
+                    String carCatName = "";
+                    carCatName = userDriver.getCarCatName();
+                    Log.e("ahmed20130074", carCatName + "    " + setCarCatName(userDriver.getCarCatName()));
+                    if (carCatName.equalsIgnoreCase(setCarCatName(userDriver.getCarCatName()))) {
+                        driverFound = true;//close the circle of loop
+                        getDriverLocation();//add marker to this driver
+                        //update this driver id or notice him that the user requested a specific car category name
+                        HashMap hmUserContactInfo = new HashMap<>();
+                        hmUserContactInfo.put("passengerId", firebaseUser.getUid());
+                        hmUserContactInfo.put("destination", strTo);
+//                                          hmUserContactInfo.put("destLat", latLngDriver.latitude);
+//                                          hmUserContactInfo.put("destLon", latLngDriver.longitude);
+                        refDrivers.updateChildren(hmUserContactInfo);
+                        //UserNormal userNormal = dataSnapshot.getValue(UserNormal.class);
+                    } else {
+                        //searching for a specific driver that matches the selected car category name
+                        r++;
+                        getClosestDriver();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+//        getDriverLocation();
+        //setTimerForThisDriver();///otherwise it will be rejected then
+
+
+    }
+
     Marker markerFoundDriver = null;
     LatLng latLngDriver = null;
     DatabaseReference referDriversWorking = null;
@@ -2052,7 +2072,7 @@ public class FrgUserMap extends Fragment implements GoogleApiClient.OnConnection
                                         .title("Your Driver"));
                             }
 
-                            checkIfDriverArrives(latLngDriver);
+                            //checkIfDriverArrives(latLngDriver);
 //                            drawLineFromUserToDriver(
 //                                    new LatLng(location.getLatitude(), location.getLongitude())
 //                                    , latLngDriver);

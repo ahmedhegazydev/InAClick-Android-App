@@ -540,9 +540,7 @@ public class DriverSignInOutActivity extends AppCompatActivity implements View.O
         initGoogleLoginButton();
         initPlacPicker();
         ///initPhoneCompRegisteration();
-
         //new GetComplexCode(getApplicationContext()).getComplexCode();
-
 
     }
 

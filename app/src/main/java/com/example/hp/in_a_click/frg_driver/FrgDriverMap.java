@@ -273,7 +273,6 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
 
     }
 
-
     Button btnAlreadyArrived = null;
 
     private void initAlreadyArrivedButton(View parentView) {
@@ -287,7 +286,6 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
         });
 
     }
-
 
     HTextView tvStartTripNow = null;
 
@@ -333,7 +331,6 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
-
 
     ImageView ivUserPhoto;
     TextView tvUserName, tvUserPhoneNumber;
@@ -880,7 +877,6 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
     int withNumberOfRipples = 6;
     int withDistance = 15;
 
-
     private void addRadarOnMapCurrent(Context context, LatLng latLng) {
         mapRippleCurrent = new MapRipple(googleMap, latLng, context);
         mapRippleCurrent.withNumberOfRipples(withNumberOfRipples);
@@ -966,7 +962,6 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
 
 
     }
-
 
     private void stopRippleRadar() {
         if (mapRippleCurrent != null) {
@@ -1113,8 +1108,9 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
     }
 
     private void displayLocation() {
-        if (/*ActivityCompat*/ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && /*ActivityCompat*/ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        if (ActivityCompat/*ContextCompat*/.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat/*ContextCompat*//*getActivity()*/
+                .checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 ) {
             return;
         }
@@ -1199,9 +1195,9 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
 
                                 if (/*switchOnlineOffline.isChecked()*/userDriver.isDriverStatus()) {
                                     markerCurrentLocation = googleMap.addMarker(new MarkerOptions()
-                                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
+                                                    //.icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
                                                     //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))//by default
-                                                    //.icon(createAppropIconForThisDriver(userDriver.getCarCatName())
+                                                    .icon(createAppropIconForThisDriver(userDriver.getCarCatName()))
                                                     //.icon(BitmapDescriptorFactory.fromResource(R.drawable.user))
                                                     .title(userDriver.getUserName())
                                                     .snippet(setCarCatName(userDriver.getCarCatName()))
@@ -1258,7 +1254,6 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
 
     }
 
-
     private String setCarCatName(String carCatName) {
         String catName = "";
         switch (carCatName) {
@@ -1284,7 +1279,6 @@ public class FrgDriverMap extends Fragment implements GoogleApiClient.OnConnecti
 
         return catName;
     }
-
 
     private BitmapDescriptor createAppropIconForThisDriver(String carCatName) {
         float imgSize = 70;
